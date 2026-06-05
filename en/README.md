@@ -56,3 +56,15 @@ This project is licensed under the **MIT** License. See the [LICENSE](../LICENSE
 
 For questions, suggestions, or support, please reach out via:
 📧 **webforservices@gmail.com**
+
+---
+
+## ☕ Support the Project (Donations)
+
+If this project saved you time, please consider supporting the development with a donation via **Pix** (popular instant payment method in Brazil)!
+
+### Pix (Copy and Paste)
+Copy the code below and paste it in your banking app:
+```text
+00020126580014BR.GOV.BCB.PIX0136abdcd399-03eb-4203-8f9c-97dc96a5146d5204000053039865802BR5925Mauricio Antonio Oliveira6009SAO PAULO62140510MzCTa2ToEb63040C07
+```
