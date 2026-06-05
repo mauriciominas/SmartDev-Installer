@@ -55,4 +55,4 @@ Este projeto é licenciado sob os termos da licença **MIT**. Veja o arquivo [LI
 ## ✉️ Contato
 
 Para dúvidas, sugestões ou suporte, entre em contato através do e-mail:
-📧 **webforservice@gmail.com**
+📧 **webforservices@gmail.com**

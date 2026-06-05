@@ -55,4 +55,4 @@ This project is licensed under the **MIT** License. See the [LICENSE](../LICENSE
 ## ✉️ Contact
 
 For questions, suggestions, or support, please reach out via:
-📧 **webforservice@gmail.com**
+📧 **webforservices@gmail.com**

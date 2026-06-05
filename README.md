@@ -37,4 +37,4 @@ This repository organizes the installer into two independent language directorie
 ## ✉️ Contato / Contact
 
 Para dúvidas, sugestões ou suporte / For questions, suggestions, or support:
-📧 **webforservice@gmail.com**
+📧 **webforservices@gmail.com**
