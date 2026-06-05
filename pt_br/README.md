@@ -14,6 +14,17 @@ Interface gráfica moderna (estilo Rufus) para automatizar a configuração e in
 
 ---
 
+## 📋 Requisitos do Sistema
+
+Para garantir o funcionamento correto do instalador, seu ambiente deve atender aos seguintes pré-requisitos:
+
+*   **Sistema Operacional:** Windows 10 (versão 1709 ou superior) ou Windows 11.
+*   **PowerShell:** PowerShell 5.1 ou superior (nativo no Windows 10/11). É necessário para a execução segura de scripts de configuração de ambiente.
+*   **Gerenciador de Pacotes:** `winget` instalado (nativo no Windows 10/11; pode ser atualizado via Microsoft Store como "App Installer").
+*   **Permissões:** Acesso de Administrador (o executável solicitará elevação UAC automaticamente ao iniciar).
+
+---
+
 ## 🚀 Como Usar
 
 ### Usando o Executável Pronto

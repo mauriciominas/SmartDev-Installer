@@ -14,6 +14,17 @@ Modern Rufus-style GUI wrapper to automate the installation and configuration of
 
 ---
 
+## 📋 System Requirements
+
+To ensure the installer works correctly, your environment must meet the following prerequisites:
+
+*   **Operating System:** Windows 10 (version 1709 or newer) or Windows 11.
+*   **PowerShell:** PowerShell 5.1 or newer (pre-installed on Windows 10/11). Required to safely run system environment variables configuration scripts.
+*   **Package Manager:** `winget` installed (native on modern Windows 10/11; can be updated/installed from the Microsoft Store as "App Installer" if missing).
+*   **Permissions:** Administrator Access (the executable will prompt for UAC elevation automatically upon launching).
+
+---
+
 ## 🚀 How to Use
 
 ### Using the Ready Executable

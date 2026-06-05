@@ -15,6 +15,11 @@ Este repositório contém os arquivos organizados em duas pastas independentes p
 ### ⚠️ AVISO DE ISENÇÃO DE RESPONSABILIDADE
 1. **Uso por sua Conta e Risco:** Este software é fornecido "no estado em que se encontra", sem garantias de qualquer tipo.
 2. **Modificação de Sistema:** Este programa executa modificações de sistema que requerem privilégios de administrador (UAC).
+### 📋 Requisitos do Sistema
+* **SO:** Windows 10 (1709 ou superior) ou Windows 11.
+* **Dependências:** PowerShell 5.1+ e `winget` instalados.
+* **Privilégios:** Administrador (UAC).
+
 3. Leia mais avisos e detalhes de uso diretamente na documentação da pasta [pt_br/](pt_br/).
 
 ---
@@ -27,9 +32,11 @@ This repository organizes the installer into two independent language directorie
 * 🇧🇷 **[pt_br/](pt_br/)**: Contains the executable, Python wrapper, and Batch script in **Brazilian Portuguese**.
 * 🌎 **[en/](en/)**: Contains the executable, Python wrapper, and Batch script in **English**.
 
-### ⚠️ DISCLAIMER
-1. **Use at Your Own Risk:** This software is provided "as is", without warranty of any kind.
-2. **System Modification:** This program performs system level modifications requiring administrative privileges (UAC).
+### 📋 System Requirements
+* **OS:** Windows 10 (1709 or newer) or Windows 11.
+* **Dependencies:** PowerShell 5.1+ and `winget` installed.
+* **Privileges:** Administrator (UAC).
+
 3. Read further disclaimers and usage details directly in the documentation of the [en/](en/) directory.
 
 ---
