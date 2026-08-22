@@ -1,87 +1,98 @@
 <div align="center">
   <img src="assets/logo.png" alt="SmartDev Installer Logo" width="180"/>
   <h1>SmartDev Installer (Português)</h1>
-  <p><strong>Interface gráfica moderna para automatizar a configuração e instalação de ferramentas de desenvolvimento no Windows através do Winget.</strong></p>
+  <p><strong>Configurador e Instalador Automatizado de Ambiente de Desenvolvimento para Windows</strong></p>
+
+  <p>
+    <a href="../LICENSE"><img src="https://img.shields.io/badge/Licen%C3%A7a-MIT-blue.svg?style=for-the-badge" alt="Licença: MIT"/></a>
+    <img src="https://img.shields.io/badge/Plataforma-Windows%2010%20%7C%2011-0078D6.svg?style=for-the-badge&logo=windows" alt="Plataforma: Windows"/>
+    <a href="https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52"><img src="https://img.shields.io/badge/Doar-PayPal-00457C.svg?style=for-the-badge&logo=paypal" alt="Doar PayPal"/></a>
+  </p>
+
+  <p>
+    <b>🌐 Idioma:</b>
+    <a href="../README.md">English (Global)</a> |
+    <strong>🇧🇷 Português do Brasil</strong>
+  </p>
 </div>
 
 ---
 
-## 📦 Ferramentas Suportadas
+## 🌟 Visão Geral
 
-O instalador organiza as ferramentas em categorias práticas:
+O **SmartDev Installer** automatiza todo o processo de configuração do seu ambiente de desenvolvimento no **Windows 10 e Windows 11**. 
 
-* **📦 Controle de Versão:** Git, GitHub Desktop
-* **⚙️ Linguagens & Runtimes:** Node.js, Python 3 (estável), Java Temurin (LTS 21), Deno Runtime
-* **💻 Editores & IDEs:** Visual Studio Code
-* **📱 Mobile & Desktop:** Flutter SDK, Android Studio, Android SDK Mínimo (cmdline-tools), Visual Studio Build Tools
-* **🌐 APIs & Bancos de Dados:** Postman, DBeaver Community, Supabase CLI
-* **🐳 Containers & Testes:** Docker CLI, Playwright CLI (E2E)
+Utilizando o **Windows Package Manager (`winget`)**, interface visual moderna (**CustomTkinter**) e scripts de configuração resilientes, ele instala ferramentas oficiais, configura caminhos no `PATH` e variáveis como `JAVA_HOME` e `ANDROID_HOME` com apenas alguns cliques.
 
 ---
 
-## ⚠️ AVISO DE ISENÇÃO DE RESPONSABILIDADE (DISCLAIMER)
+## 📦 Ferramentas Suportadas (16 Pacotes)
 
-**LEIA COM ATENÇÃO ANTES DE USAR OU EXECUTAR O INSTALADOR:**
-
-1. **Uso por sua Conta e Risco:** Este software é fornecido "no estado em que se encontra" (AS IS), sem garantias de qualquer tipo, expressas ou implícitas. O autor não assume qualquer responsabilidade por erros, omissões ou possíveis danos ao seu sistema operacional, perda de dados ou instabilidade de software.
-2. **Modificação de Sistema:** Este programa executa instalações no nível do sistema usando privilégios de administrador (UAC) e modifica variáveis de ambiente cruciais (como `PATH`, `ANDROID_HOME` e `JAVA_HOME`). Recomendamos realizar um backup ou ponto de restauração do sistema antes da execução.
-3. **Sem Garantia de Sucesso:** A instalação dos pacotes depende do repositório público `winget` e da conexão de internet. Falhas de download ou incompatibilidade de pacotes de terceiros não são de responsabilidade deste projeto.
+| Categoria | Ferramenta | ID Winget / Método | Descrição |
+| :--- | :--- | :--- | :--- |
+| **📦 Controle de Versão** | **Git** | `Git.Git` | Controle de versão distribuído padrão de mercado |
+| | **GitHub Desktop** | `GitHub.GitHubDesktop` | Cliente visual oficial do GitHub |
+| **⚙️ Linguagens & Runtimes** | **Node.js** | `OpenJS.NodeJS` | Runtime JavaScript baseado no motor V8 do Chrome |
+| | **Python 3** | `Python.Python...` | Versão estável mais recente do Python 3 |
+| | **Java Temurin** | `EclipseAdoptium.Temurin.21.JDK` | OpenJDK 21 LTS estável (compatível com Gradle e Android) |
+| | **Deno** | `DenoLand.Deno` | Runtime moderno e seguro para JavaScript/TypeScript |
+| **💻 Editores & IDEs** | **Visual Studio Code** | `Microsoft.VisualStudioCode` | Editor de código leve e extensível |
+| **📱 Mobile & Desktop** | **Flutter SDK** | `Flutter.Flutter` | Framework multi-plataforma da Google |
+| | **Android Studio** | `Google.AndroidStudio` | IDE oficial para desenvolvimento Android |
+| | **Android SDK Min** | `Google.Android.CommandLineTools` | Ferramentas de linha de comando (`sdkmanager`) |
+| | **VS Build Tools** | `Microsoft.VisualStudio.2022.BuildTools` | Compiladores C++ e Windows SDK para Flutter e C++ |
+| **🌐 APIs & Bancos de Dados** | **Postman** | `Postman.Postman` | Plataforma completa para teste e desenvolvimento de APIs |
+| | **DBeaver** | `DBeaver.DBeaver.Community` | Gerenciador universal para bancos SQL e NoSQL |
+| | **Supabase CLI** | `Supabase.CLI` / `npm -g` | CLI oficial para desenvolvimento local com Supabase |
+| **🐳 Containers & Testes** | **Docker CLI** | `Docker.DockerCLI` | Cliente de linha de comando do Docker |
+| | **Playwright CLI** | `@playwright/test` | Framework moderno de testes End-to-End (E2E) |
 
 ---
 
-## 📋 Requisitos do Sistema
+## 🎯 Perfis de Instalação (Presets)
 
-Para garantir o funcionamento correto do instalador, seu ambiente deve atender aos seguintes pré-requisitos:
-
-* **Sistema Operacional:** Windows 10 (versão 1709 ou superior) ou Windows 11.
-* **PowerShell:** PowerShell 5.1 ou superior (nativo no Windows 10/11).
-* **Gerenciador de Pacotes:** `winget` instalado (nativo no Windows 10/11; pode ser atualizado via Microsoft Store como "App Installer").
-* **Permissões:** Acesso de Administrador (o executável solicitará elevação UAC automaticamente ao iniciar).
+* **Completo (Tudo):** Instala todos os 16 componentes.
+* **Desenvolvimento Web & Fullstack:** Git, GitHub Desktop, Node.js, Python, Deno, VS Code, Postman, DBeaver, Supabase CLI, Docker CLI e Playwright CLI.
+* **Desenvolvimento Mobile (Flutter & Android):** Git, Java Temurin (LTS 21), Flutter SDK, Android Studio, Android SDK Mínimo, VS Code e Postman.
+* **Backend, Cloud & Containers:** Git, Node.js, Python, Deno, VS Code, Postman, DBeaver, Supabase CLI e Docker CLI.
+* **Personalizado:** Permite marcar e desmarcar qualquer item livremente.
 
 ---
 
 ## 🚀 Como Usar
 
-### Usando o Executável Pronto
-1. Baixe o executável `SmartDevInstaller.exe` a partir da pasta [dist/](dist/) ou da aba de **Releases** do repositório.
-2. Execute o arquivo como **Administrador** (ele solicitará elevação de privilégios automaticamente).
-3. Selecione o preset de ferramentas que deseja configurar ou marque-as de forma personalizada.
+### 1. Usando o Executável Pronto (.exe)
+1. Baixe o executável pronto [`dist/SmartDevInstaller.exe`](dist/SmartDevInstaller.exe).
+2. Dê um **duplo clique** para abrir (o Windows solicitará elevação de Administrador UAC automaticamente).
+3. Selecione o preset desejado ou marque os componentes manualmente.
 4. Clique em **INICIAR** e acompanhe os logs em tempo real.
 
-### Executando o Código Fonte
-Caso queira rodar ou modificar o projeto a partir do código fonte:
+### 2. Executando via Código Fonte
+```bash
+pip install customtkinter
+python gui_app.py
+```
 
-1. Certifique-se de ter o Python 3 instalado.
-2. Instale as dependências visuais:
-   ```bash
-   pip install customtkinter
-   ```
-3. Execute a aplicação:
-   ```bash
-   python gui_app.py
-   ```
-
-### Compilando um Novo Executável
-Para compilar um novo arquivo `.exe` autônomo (empacotando o backend batch internamente):
-1. Abra o PowerShell na pasta `pt_br/` do projeto.
-2. Execute o script de compilação:
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File build_exe.ps1
-   ```
-3. O executável final compilado estará disponível em `dist/SmartDevInstaller.exe`.
+### 3. Compilando um Novo Executável
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File build_exe.ps1
+```
 
 ---
 
-## 📄 Licença
+## 📋 Requisitos do Sistema
 
-Este projeto é licenciado sob os termos da licença **MIT**. Veja o arquivo [LICENSE](../LICENSE) na raiz do projeto para mais detalhes.
+* **Sistema Operacional:** Windows 10 (1709 ou superior) ou Windows 11.
+* **PowerShell:** 5.1 ou superior (nativo no Windows).
+* **Gerenciador de Pacotes:** `winget` instalado.
+* **Privilégios:** Administrador (UAC).
 
 ---
 
-## ✉️ Contato
+## ⚠️ AVISO DE ISENÇÃO DE RESPONSABILIDADE
 
-Para dúvidas, sugestões ou suporte, entre em contato através do e-mail:
-📧 **webforservices@gmail.com**
+1. **Uso por sua Conta e Risco:** Este software é fornecido "no estado em que se encontra" (AS IS), sem garantias de qualquer tipo.
+2. **Modificação de Sistema:** Este programa modifica variáveis de ambiente do sistema (`PATH`, `ANDROID_HOME`, `JAVA_HOME`). Recomendamos criar um ponto de restauração antes de execuções em massa.
 
 ---
 
@@ -92,7 +103,7 @@ Se este projeto te poupou tempo no setup do seu ambiente de desenvolvimento, con
 <div align="center">
 
 ### 🌐 PayPal
-[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)
 
 👉 **[Clique aqui para doar via PayPal](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)**
 
@@ -102,7 +113,7 @@ Se este projeto te poupou tempo no setup do seu ambiente de desenvolvimento, con
 
 ---
 
-### 🇧🇷 Pix (Copia e Cola)
+### 🇧🇷 Pix (Brasil)
 
 ```text
 00020126580014BR.GOV.BCB.PIX0136abdcd399-03eb-4203-8f9c-97dc96a5146d5204000053039865802BR5925Mauricio Antonio Oliveira6009SAO PAULO62140510MzCTa2ToEb63040C07
@@ -113,3 +124,10 @@ Se este projeto te poupou tempo no setup do seu ambiente de desenvolvimento, con
 <img src="assets/pix_qr.png" alt="Pix QR Code" width="180"/>
 
 </div>
+
+---
+
+## 📄 Licença e Contato
+
+* **Licença:** [MIT License](../LICENSE)
+* **Autor / Contato:** Mauricio Antonio Oliveira — 📧 **webforservices@gmail.com**

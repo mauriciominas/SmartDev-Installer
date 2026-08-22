@@ -1,98 +1,109 @@
 <div align="center">
   <img src="assets/logo.png" alt="SmartDev Installer Logo" width="180"/>
   <h1>SmartDev Installer (English)</h1>
-  <p><strong>Modern Rufus-style GUI wrapper to automate the installation and configuration of developer environment tools on Windows using Winget.</strong></p>
+  <p><strong>Automated Developer Environment Installer & Configurator for Windows</strong></p>
+
+  <p>
+    <a href="../LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT"/></a>
+    <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6.svg?style=for-the-badge&logo=windows" alt="Platform: Windows"/>
+    <a href="https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52"><img src="https://img.shields.io/badge/Donate-PayPal-00457C.svg?style=for-the-badge&logo=paypal" alt="Donate PayPal"/></a>
+  </p>
+
+  <p>
+    <b>🌐 Language:</b>
+    <strong>English (Default)</strong> |
+    <a href="../pt_br/README.md">🇧🇷 Português do Brasil</a>
+  </p>
 </div>
 
 ---
 
-## 📦 Supported Tools
+## 🌟 Overview
 
-The installer organizes tools into convenient categories:
+**SmartDev Installer** is an automated tool designed to set up a complete, professional development environment on **Windows 10 and 11** in minutes. 
 
-* **📦 Version Control:** Git, GitHub Desktop
-* **⚙️ Languages & Runtimes:** Node.js, Python 3 (stable), Java Temurin (LTS 21), Deno Runtime
-* **💻 Editors & IDEs:** Visual Studio Code
-* **📱 Mobile & Desktop:** Flutter SDK, Android Studio, Android SDK Minimum (cmdline-tools), Visual Studio Build Tools
-* **🌐 APIs & Databases:** Postman, DBeaver Community, Supabase CLI
-* **🐳 Containers & Testing:** Docker CLI, Playwright CLI (E2E)
+Powered by **Windows Package Manager (`winget`)**, **Python (CustomTkinter GUI)**, and **resilient Batch/PowerShell backends**, it provides a clean graphical interface to install, configure system environment variables (`PATH`, `JAVA_HOME`, `ANDROID_HOME`), and keep your tools updated.
 
 ---
 
-## ⚠️ DISCLAIMER
+## 📦 Supported Tools (16 Packages)
 
-**PLEASE READ CAREFULLY BEFORE USING OR EXECUTING THIS SOFTWARE:**
-
-1. **Use at Your Own Risk:** This software is provided "as is", without warranty of any kind, express or implied. The author assumes no liability for errors, omissions, or any system damage, data loss, or software instability caused by this program.
-2. **System Modification:** This program performs system-level modifications, requests administrative elevation (UAC), and permanently changes crucial environment variables (such as `PATH`, `ANDROID_HOME`, and `JAVA_HOME`). We highly recommend creating a system restore point or backup before running.
-3. **No Guarantee of Success:** Package installations depend on the public `winget` repository and your internet connection. Failures, network timeouts, or incompatibilities from third-party tools are not the responsibility of this project.
+| Category | Tool | Package ID / Method | Description |
+| :--- | :--- | :--- | :--- |
+| **📦 Version Control** | **Git** | `Git.Git` | Industry standard distributed version control |
+| | **GitHub Desktop** | `GitHub.GitHubDesktop` | Official GUI client for Git & GitHub repositories |
+| **⚙️ Languages & Runtimes** | **Node.js** | `OpenJS.NodeJS` | JavaScript runtime built on Chrome's V8 engine |
+| | **Python 3** | `Python.Python...` | Latest stable Python 3 release |
+| | **Java Temurin** | `EclipseAdoptium.Temurin.21.JDK` | Enterprise OpenJDK 21 LTS (Android & Gradle compatible) |
+| | **Deno** | `DenoLand.Deno` | Modern, secure runtime for JavaScript & TypeScript |
+| **💻 Editors & IDEs** | **Visual Studio Code** | `Microsoft.VisualStudioCode` | Modern, extensible code editor |
+| **📱 Mobile & Desktop** | **Flutter SDK** | `Flutter.Flutter` | Google's multi-platform UI toolkit |
+| | **Android Studio** | `Google.AndroidStudio` | Official IDE for Android app development |
+| | **Android SDK Min** | `Google.Android.CommandLineTools` | Lightweight Android command-line tools & sdkmanager |
+| | **VS Build Tools** | `Microsoft.VisualStudio.2022.BuildTools` | C++ compilers & Windows SDKs for Flutter/native builds |
+| **🌐 APIs & Databases** | **Postman** | `Postman.Postman` | Comprehensive API testing and development platform |
+| | **DBeaver** | `DBeaver.DBeaver.Community` | Universal database management tool for SQL/NoSQL |
+| | **Supabase CLI** | `Supabase.CLI` / `npm -g` | Local development toolkit for Supabase backend |
+| **🐳 Containers & Testing** | **Docker CLI** | `Docker.DockerCLI` | Standalone Docker command-line client |
+| | **Playwright CLI** | `@playwright/test` | Modern End-to-End (E2E) web testing framework |
 
 ---
 
-## 📋 System Requirements
+## 🎯 Smart Installation Profiles (Presets)
 
-To ensure the installer works correctly, your environment must meet the following prerequisites:
-
-* **Operating System:** Windows 10 (version 1709 or newer) or Windows 11.
-* **PowerShell:** PowerShell 5.1 or newer (pre-installed on Windows 10/11).
-* **Package Manager:** `winget` installed (native on modern Windows 10/11; can be updated/installed from the Microsoft Store as "App Installer" if missing).
-* **Permissions:** Administrator Access (the executable will prompt for UAC elevation automatically upon launching).
+* **Full (All Tools):** Complete workstation setup with all 16 tools configured.
+* **Web & Fullstack Development:** Git, GitHub Desktop, Node.js, Python, Deno, VS Code, Postman, DBeaver, Supabase CLI, Docker CLI, and Playwright CLI.
+* **Mobile Development (Flutter & Android):** Git, Java Temurin (LTS 21), Flutter SDK, Android Studio, Android SDK Min, VS Code, and Postman.
+* **Backend, Cloud & Containers:** Git, Node.js, Python, Deno, VS Code, Postman, DBeaver, Supabase CLI, and Docker CLI.
+* **Custom:** Freely select any combination of checkboxes.
 
 ---
 
 ## 🚀 How to Use
 
-### Using the Ready Executable
-1. Download the pre-compiled `SmartDevInstaller.exe` from the [dist/](dist/) folder or the **Releases** tab of your repository.
-2. Run the executable as **Administrator** (it will prompt for UAC elevation automatically).
-3. Select your desired profile (Full, Web, Mobile, Backend) or select checkboxes customly.
+### 1. Ready Standalone Executable (.exe)
+1. Download the ready executable [`dist/SmartDevInstaller.exe`](dist/SmartDevInstaller.exe).
+2. **Double-click** to run (Windows will prompt for UAC elevation automatically).
+3. Select your desired profile or select checkboxes customly.
 4. Click **START** and follow logs in real-time.
 
-### Running from Source Code
-If you want to run or modify the project from the source:
+### 2. Running from Source Code
+```bash
+pip install customtkinter
+python gui_app.py
+```
 
-1. Ensure you have Python 3 installed.
-2. Install dependencies:
-   ```bash
-   pip install customtkinter
-   ```
-3. Run the application:
-   ```bash
-   python gui_app.py
-   ```
-
-### Compiling a New Executable
-To bundle a new standalone `.exe` containing the internal batch script:
-1. Open PowerShell inside the `en/` folder.
-2. Execute the compilation script:
-   ```powershell
-   powershell -NoProfile -ExecutionPolicy Bypass -File build_exe.ps1
-   ```
-3. The compiled executable will be located in `dist/SmartDevInstaller.exe`.
+### 3. Compiling a New Executable
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File build_exe.ps1
+```
 
 ---
 
-## 📄 License
+## 📋 System Requirements
 
-This project is licensed under the **MIT** License. See the [LICENSE](../LICENSE) file in the root directory for more details.
+* **Operating System:** Windows 10 (version 1709 or newer) or Windows 11.
+* **PowerShell:** PowerShell 5.1+ (pre-installed natively on Windows 10/11).
+* **Package Manager:** `winget` (pre-installed on modern Windows; update via Microsoft Store "App Installer" if needed).
+* **Privileges:** Administrator Access (UAC).
 
 ---
 
-## ✉️ Contact
+## ⚠️ Disclaimer
 
-For questions, suggestions, or support, please reach out via:
-📧 **webforservices@gmail.com**
+1. **As-Is Warranty:** This software is provided "as is", without warranty of any kind. The author assumes no liability for system modifications, package repository outages, or software incompatibilities.
+2. **Environment Changes:** The tool configures environment variables (`PATH`, `JAVA_HOME`, `ANDROID_HOME`). Creating a system restore point before large-scale setup is recommended.
 
 ---
 
 ## ☕ Support the Project (Donations)
 
-If this project saved you time setting up your developer environment, please consider supporting ongoing development with a donation!
+If **SmartDev Installer** saved you hours of manual setup, please consider supporting ongoing maintenance and open-source development!
 
 <div align="center">
 
 ### 🌐 PayPal (International)
-[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-00457C.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)
 
 👉 **[Click here to donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)**
 
@@ -113,3 +124,10 @@ If this project saved you time setting up your developer environment, please con
 <img src="assets/pix_qr.png" alt="Pix QR Code" width="180"/>
 
 </div>
+
+---
+
+## 📄 License & Author
+
+* **License:** [MIT License](../LICENSE)
+* **Author / Contact:** Mauricio Antonio Oliveira — 📧 **webforservices@gmail.com**
