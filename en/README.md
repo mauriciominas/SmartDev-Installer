@@ -14,6 +14,9 @@
     <strong>English (Default)</strong> |
     <a href="../pt_br/README.md">🇧🇷 Português do Brasil</a>
   </p>
+
+  <br/>
+  <img src="assets/demo.gif" alt="SmartDev Installer Demo" width="760"/>
 </div>
 
 ---
