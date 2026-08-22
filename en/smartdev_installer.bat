@@ -25,42 +25,69 @@ echo ============================================ > "%LOGFILE%"
 echo DEV INSTALLER - %date% %time% >> "%LOGFILE%"
 echo ============================================ >> "%LOGFILE%"
 
-echo [1/8] Updating Winget sources...
+if "%TOTAL_STEPS%"=="" set "TOTAL_STEPS=18"
+set /a CURRENT_STEP=0
+
+call :NextStep "Updating Winget sources..."
 winget source update >> "%WINGETLOG%" 2>&1
 
-echo [2/8] Updating App Installer...
+call :NextStep "Updating App Installer..."
 winget upgrade --id Microsoft.AppInstaller --accept-package-agreements --accept-source-agreements >> "%WINGETLOG%" 2>&1
 
 echo.
 echo ============================================
 echo DEVELOPER ENVIRONMENT INSTALLER
 echo ============================================
-echo g - Git
-echo n - Node.js
-echo p - Python 3
-echo j - Java Temurin
-echo a - Android Studio
-echo m - Android SDK Minimum (cmdline-tools)
-echo v - Visual Studio Build Tools
-echo f - Flutter
-echo s - Supabase CLI
-echo u - Update ALL
+echo [Version Control]
+echo   g - Git
+echo   h - GitHub Desktop
+echo [Languages and Runtimes]
+echo   n - Node.js
+echo   p - Python 3
+echo   j - Java Temurin (LTS 21)
+echo   e - Deno Runtime
+echo [Editors and IDEs]
+echo   c - Visual Studio Code
+echo [Mobile and Desktop]
+echo   f - Flutter SDK
+echo   a - Android Studio
+echo   m - Android SDK Minimum (cmdline-tools)
+echo   v - Visual Studio Build Tools
+echo [APIs and Databases]
+echo   t - Postman
+echo   b - DBeaver Community
+echo   s - Supabase CLI
+echo [Containers and Testing]
+echo   d - Docker CLI
+echo   w - Playwright CLI (E2E)
+echo [General]
+echo   u - Update ALL
 echo.
 
 if "%ESCOLHAS%"=="" set /p ESCOLHAS=Type the desired letters: 
 
-echo %ESCOLHAS% | find /I "g" >nul && call :Pkg Git.Git Git
-echo %ESCOLHAS% | find /I "n" >nul && call :Pkg OpenJS.NodeJS NodeJS
-echo %ESCOLHAS% | find /I "p" >nul && call :Python
-echo %ESCOLHAS% | find /I "j" >nul && call :Java
-echo %ESCOLHAS% | find /I "a" >nul && call :Pkg Google.AndroidStudio AndroidStudio
-echo %ESCOLHAS% | find /I "m" >nul && call :AndroidSDK
-echo %ESCOLHAS% | find /I "v" >nul && call :Pkg Microsoft.VisualStudio.2022.BuildTools VSBuildTools
-echo %ESCOLHAS% | find /I "f" >nul && call :Flutter
-echo %ESCOLHAS% | find /I "s" >nul && call :Supabase
-echo %ESCOLHAS% | find /I "u" >nul && call :UpdateDev
+echo !ESCOLHAS! | find /I "g" >nul && (call :NextStep "Processing Git..." & call :Pkg Git.Git Git)
+echo !ESCOLHAS! | find /I "h" >nul && (call :NextStep "Processing GitHub Desktop..." & call :Pkg GitHub.GitHubDesktop GitHubDesktop)
+echo !ESCOLHAS! | find /I "n" >nul && (call :NextStep "Processing Node.js..." & call :Pkg OpenJS.NodeJS NodeJS)
+echo !ESCOLHAS! | find /I "p" >nul && (call :NextStep "Processing Python..." & call :Python)
+echo !ESCOLHAS! | find /I "j" >nul && (call :NextStep "Processing Java Temurin..." & call :Java)
+echo !ESCOLHAS! | find /I "e" >nul && (call :NextStep "Processing Deno..." & call :Pkg DenoLand.Deno Deno)
+echo !ESCOLHAS! | find /I "c" >nul && (call :NextStep "Processing Visual Studio Code..." & call :Pkg Microsoft.VisualStudioCode VSCode)
+echo !ESCOLHAS! | find /I "f" >nul && (call :NextStep "Processing Flutter..." & call :Flutter)
+echo !ESCOLHAS! | find /I "a" >nul && (call :NextStep "Processing Android Studio..." & call :Pkg Google.AndroidStudio AndroidStudio)
+echo !ESCOLHAS! | find /I "m" >nul && (call :NextStep "Processing Android SDK..." & call :AndroidSDK)
+echo !ESCOLHAS! | find /I "v" >nul && (call :NextStep "Processing Visual Studio Build Tools..." & call :Pkg Microsoft.VisualStudio.2022.BuildTools VSBuildTools)
+echo !ESCOLHAS! | find /I "t" >nul && (call :NextStep "Processing Postman..." & call :Pkg Postman.Postman Postman)
+echo !ESCOLHAS! | find /I "b" >nul && (call :NextStep "Processing DBeaver Community..." & call :Pkg DBeaver.DBeaver.Community DBeaver)
+echo !ESCOLHAS! | find /I "s" >nul && (call :NextStep "Processing Supabase CLI..." & call :Supabase)
+echo !ESCOLHAS! | find /I "d" >nul && (call :NextStep "Processing Docker CLI..." & call :Pkg Docker.DockerCLI DockerCLI)
+echo !ESCOLHAS! | find /I "w" >nul && (call :NextStep "Processing Playwright CLI..." & call :Playwright)
+echo !ESCOLHAS! | find /I "u" >nul && (call :NextStep "Updating all components..." & call :UpdateDev)
 
+call :NextStep "Configuring environment variables and system PATH..."
 call :ConfigurePaths
+
+call :NextStep "Generating environment summary..."
 call :Summary
 
 REM --- Clean and format output logs ---
@@ -79,24 +106,29 @@ if not "%GUI_MODE%"=="1" pause
 exit /b
 
 REM ============================================================
-REM :WhereCheck <comando>
-REM   Checks if command exists on system.
+REM :NextStep <message>
+REM ============================================================
+:NextStep
+set /a CURRENT_STEP+=1
+echo [%CURRENT_STEP%/%TOTAL_STEPS%] %~1
+goto :eof
+
+REM ============================================================
+REM :WhereCheck <command>
 REM ============================================================
 :WhereCheck
 where %1 >nul 2>&1
 exit /b %errorlevel%
 
 REM ============================================================
-REM :WhereLog <comando>
-REM   Logs executable path.
+REM :WhereLog <command>
 REM ============================================================
 :WhereLog
 where %1 >> "%LOGFILE%" 2>&1
 goto :eof
 
 REM ============================================================
-REM :Pkg <winget-id> <nome-amigavel>
-REM   Attempts upgrade; installs if not installed.
+REM :Pkg <winget-id> <friendly-name>
 REM ============================================================
 :Pkg
 echo Checking %2...
@@ -163,7 +195,7 @@ if not errorlevel 1 (
     )
 )
 
-echo Searching for the latest version of Python in Winget...
+echo Searching for the latest stable version of Python in Winget...
 winget search --id Python.Python > "%TMPOUT%" 2>&1
 
 set PYTHON_ID=
@@ -182,22 +214,22 @@ call :Pkg !PYTHON_ID! Python
 goto :eof
 
 REM ============================================================
-REM :Java
+REM :Java — Searches for LTS (JDK 21) Temurin
 REM ============================================================
 :Java
-echo Searching for the latest version of Java Temurin in Winget...
+echo Searching for LTS version of Java Temurin in Winget...
 winget search --id EclipseAdoptium.Temurin > "%TMPOUT%" 2>&1
 
 set JAVA_ID=
-for /f "delims=" %%I in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Test-Path $env:TMPOUT) { Get-Content $env:TMPOUT | Select-String -Pattern 'EclipseAdoptium\.Temurin\.\d+\.JDK' -AllMatches | ForEach-Object { $_.Matches.Value } | Sort-Object { [int]($_ -replace 'EclipseAdoptium\.Temurin\.', '' -replace '\.JDK', '') } -Descending | Select-Object -First 1 }"') do (
+for /f "delims=" %%I in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Test-Path $env:TMPOUT) { Get-Content $env:TMPOUT | Select-String -Pattern 'EclipseAdoptium\.Temurin\.(21|17)\.JDK' -AllMatches | ForEach-Object { $_.Matches.Value } | Sort-Object { [int]($_ -replace 'EclipseAdoptium\.Temurin\.', '' -replace '\.JDK', '') } -Descending | Select-Object -First 1 }"') do (
     set "JAVA_ID=%%I"
 )
 
 if not defined JAVA_ID (
-    echo   [WARNING] No Temurin version found on Winget. Using EclipseAdoptium.Temurin.21.JDK as default.
+    echo   [WARNING] No Temurin LTS version found on Winget. Using EclipseAdoptium.Temurin.21.JDK as default.
     set "JAVA_ID=EclipseAdoptium.Temurin.21.JDK"
 ) else (
-    echo   Latest version found: !JAVA_ID!
+    echo   LTS version found: !JAVA_ID!
 )
 
 call :Pkg !JAVA_ID! "Java Temurin"
@@ -219,6 +251,28 @@ if errorlevel 1 (
 goto :eof
 
 REM ============================================================
+REM :Playwright
+REM ============================================================
+:Playwright
+echo Checking Playwright CLI...
+call :WhereCheck npm
+if errorlevel 1 (
+    echo   [WARNING] Node.js/npm not found. Installing Node.js first...
+    call :Pkg OpenJS.NodeJS NodeJS
+)
+
+echo   Installing @playwright/test globally via npm...
+call npm install -g @playwright/test >> "%WINGETLOG%" 2>&1
+if errorlevel 1 (
+    echo   [ERROR] Failed to install @playwright/test via npm.
+    echo   Playwright: ERROR during installation >> "%LOGFILE%"
+) else (
+    echo   [OK] Playwright CLI installed successfully via npm.
+    echo   Playwright: installed >> "%LOGFILE%"
+)
+goto :eof
+
+REM ============================================================
 REM :Supabase
 REM ============================================================
 :Supabase
@@ -228,7 +282,6 @@ if errorlevel 1 (
     winget install --id Supabase.CLI -e --accept-package-agreements --accept-source-agreements > "%TMPOUT%" 2>&1
     type "%TMPOUT%" >> "%WINGETLOG%"
     
-    REM Check if winget failed
     findstr /I /C:"No package found" "%TMPOUT%" >nul 2>&1
     if not errorlevel 1 (
         echo   Winget failed, trying npm...
@@ -244,7 +297,6 @@ if errorlevel 1 (
     echo   Supabase CLI already installed.
 )
 
-REM Verify version only if command is available
 call :WhereCheck supabase
 if not errorlevel 1 (
     call supabase --version >> "%LOGFILE%" 2>&1
@@ -280,11 +332,20 @@ REM ============================================================
 echo.
 echo === Updating all components ===
 call :Pkg Git.Git Git
+call :Pkg GitHub.GitHubDesktop GitHubDesktop
 call :Pkg OpenJS.NodeJS NodeJS
 call :Python
 call :Java
+call :Pkg DenoLand.Deno Deno
+call :Pkg Microsoft.VisualStudioCode VSCode
 call :Flutter
+call :Pkg Google.AndroidStudio AndroidStudio
+call :Pkg Microsoft.VisualStudio.2022.BuildTools VSBuildTools
+call :Pkg Postman.Postman Postman
+call :Pkg DBeaver.DBeaver.Community DBeaver
+call :Pkg Docker.DockerCLI DockerCLI
 call :Supabase
+call :Playwright
 goto :eof
 
 REM ============================================================
@@ -293,7 +354,7 @@ REM ============================================================
 :ConfigurePaths
 echo Configuring environment variables and system PATH...
 
-powershell -NoProfile -ExecutionPolicy Bypass -Command "$sdkPaths = @(Join-Path $env:LOCALAPPDATA 'Android\Sdk', 'C:\Android\android-sdk', Join-Path $env:ProgramFiles 'Android\Android SDK', Join-Path $env:LOCALAPPDATA 'Programs\Android\Android SDK'); $sdkDir = $sdkPaths | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($sdkDir) { [Environment]::SetEnvironmentVariable('ANDROID_HOME', $sdkDir, 'User'); $env:ANDROID_HOME = $sdkDir; $pathsToAdd = @((Join-Path $sdkDir 'cmdline-tools\latest\bin'), (Join-Path $sdkDir 'cmdline-tools\bin'), (Join-Path $sdkDir 'platform-tools'), (Join-Path $sdkDir 'emulator')); foreach ($p in $pathsToAdd) { if (Test-Path $p) { $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); if ($userPath -split ';' -notcontains $p) { [Environment]::SetEnvironmentVariable('PATH', $userPath + ';' + $p, 'User'); Write-Host ('  Added to PATH: ' + $p) } } } }; $flutterPaths = @(Join-Path $env:LOCALAPPDATA 'Programs\flutter\bin', 'C:\flutter\bin', 'C:\src\flutter\bin', Join-Path $env:USERPROFILE 'flutter\bin'); $flutterBin = $flutterPaths | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($flutterBin) { $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); if ($userPath -split ';' -notcontains $flutterBin) { [Environment]::SetEnvironmentVariable('PATH', $userPath + ';' + $flutterBin, 'User'); Write-Host ('  Added to PATH: ' + $flutterBin) } }; $javaPaths = @(Join-Path $env:ProgramFiles 'Eclipse Adoptium', Join-Path $env:ProgramFiles 'Eclipse Foundation'); $javaDir = $null; foreach ($jp in $javaPaths) { if (Test-Path $jp) { $jdkDir = Get-ChildItem $jp -Filter 'jdk-*' | Select-Object -First 1; if ($jdkDir) { $javaDir = $jdkDir.FullName; break } } }; if ($javaDir) { [Environment]::SetEnvironmentVariable('JAVA_HOME', $javaDir, 'User'); $env:JAVA_HOME = $javaDir; $javaBin = Join-Path $javaDir 'bin'; $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); if ($userPath -split ';' -notcontains $javaBin) { [Environment]::SetEnvironmentVariable('PATH', $userPath + ';' + $javaBin, 'User'); Write-Host ('  Added to PATH: ' + $javaBin) } }"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$sdkPaths = @(Join-Path $env:LOCALAPPDATA 'Android\Sdk', 'C:\Android\android-sdk', Join-Path $env:ProgramFiles 'Android\Android SDK', Join-Path $env:LOCALAPPDATA 'Programs\Android\Android SDK'); $sdkDir = $sdkPaths | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($sdkDir) { [Environment]::SetEnvironmentVariable('ANDROID_HOME', $sdkDir, 'User'); $env:ANDROID_HOME = $sdkDir; $pathsToAdd = @((Join-Path $sdkDir 'cmdline-tools\latest\bin'), (Join-Path $sdkDir 'cmdline-tools\bin'), (Join-Path $sdkDir 'platform-tools'), (Join-Path $sdkDir 'emulator')); foreach ($p in $pathsToAdd) { if (Test-Path $p) { $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); $current = if ($userPath) { $userPath -split ';' | Where-Object { $_.Trim() -ne '' } } else { @() }; if ($current -notcontains $p) { $newPath = ($current + $p) -join ';'; [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User'); Write-Host ('  Added to PATH: ' + $p) } } } }; $flutterPaths = @(Join-Path $env:LOCALAPPDATA 'Programs\flutter\bin', 'C:\flutter\bin', 'C:\src\flutter\bin', Join-Path $env:USERPROFILE 'flutter\bin'); $flutterBin = $flutterPaths | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($flutterBin) { $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); $current = if ($userPath) { $userPath -split ';' | Where-Object { $_.Trim() -ne '' } } else { @() }; if ($current -notcontains $flutterBin) { $newPath = ($current + $flutterBin) -join ';'; [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User'); Write-Host ('  Added to PATH: ' + $flutterBin) } }; $javaPaths = @(Join-Path $env:ProgramFiles 'Eclipse Adoptium', Join-Path $env:ProgramFiles 'Eclipse Foundation'); $javaDir = $null; foreach ($jp in $javaPaths) { if (Test-Path $jp) { $jdkDir = Get-ChildItem $jp -Filter 'jdk-*' | Select-Object -First 1; if ($jdkDir) { $javaDir = $jdkDir.FullName; break } } }; if ($javaDir) { [Environment]::SetEnvironmentVariable('JAVA_HOME', $javaDir, 'User'); $env:JAVA_HOME = $javaDir; $javaBin = Join-Path $javaDir 'bin'; $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); $current = if ($userPath) { $userPath -split ';' | Where-Object { $_.Trim() -ne '' } } else { @() }; if ($current -notcontains $javaBin) { $newPath = ($current + $javaBin) -join ';'; [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User'); Write-Host ('  Added to PATH: ' + $javaBin) } }"
 goto :eof
 
 REM ============================================================
@@ -306,7 +367,7 @@ echo ENVIRONMENT SUMMARY
 echo ============================================
 echo ===== SUMMARY ===== >> "%LOGFILE%"
 
-for %%C in (git node python java flutter supabase sdkmanager) do (
+for %%C in (git node python java deno code flutter supabase sdkmanager docker postman dbeaver) do (
     call :WhereCheck %%C
     if not errorlevel 1 (
         echo   %%C: found
@@ -322,10 +383,13 @@ git --version >> "%LOGFILE%" 2>&1
 node --version >> "%LOGFILE%" 2>&1
 python --version >> "%LOGFILE%" 2>&1
 java -version >> "%LOGFILE%" 2>&1
+call deno --version >> "%LOGFILE%" 2>&1
+call code --version >> "%LOGFILE%" 2>&1
 call flutter --version >> "%LOGFILE%" 2>&1
 call supabase --version >> "%LOGFILE%" 2>&1
+call docker --version >> "%LOGFILE%" 2>&1
+call npx playwright --version >> "%LOGFILE%" 2>&1
 
-:SummaryEnd
 REM Clear temp file
 if exist "%TMPOUT%" del "%TMPOUT%"
 goto :eof

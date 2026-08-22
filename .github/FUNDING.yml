@@ -1,9 +1,4 @@
-# Configuração oficial do botão "Sponsor" no GitHub
+# Configuracao oficial do botao "Sponsor" no GitHub
 
-# Substitua com seus respectivos usuários ou links de doação:
-github: # Seu nome de usuário do GitHub (ex: mauricio)
-ko_fi: # Seu usuário do Ko-fi (ex: mauricio)
-patreon: # Seu usuário do Patreon (ex: mauricio)
-
-# Link customizado (perfeito para Pix ou link do PayPal)
-custom: ['https://github.com/mauriciominas/SmartDev-Installer#apoie-o-projeto-doação--support-the-project']
+# Link direto para doacao via PayPal
+custom: ['https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52']

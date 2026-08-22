@@ -1,6 +1,21 @@
-# SmartDev Installer (English)
+<div align="center">
+  <img src="assets/logo.png" alt="SmartDev Installer Logo" width="180"/>
+  <h1>SmartDev Installer (English)</h1>
+  <p><strong>Modern Rufus-style GUI wrapper to automate the installation and configuration of developer environment tools on Windows using Winget.</strong></p>
+</div>
 
-Modern Rufus-style GUI wrapper to automate the installation and configuration of developer environment tools on Windows using Winget.
+---
+
+## 📦 Supported Tools
+
+The installer organizes tools into convenient categories:
+
+* **📦 Version Control:** Git, GitHub Desktop
+* **⚙️ Languages & Runtimes:** Node.js, Python 3 (stable), Java Temurin (LTS 21), Deno Runtime
+* **💻 Editors & IDEs:** Visual Studio Code
+* **📱 Mobile & Desktop:** Flutter SDK, Android Studio, Android SDK Minimum (cmdline-tools), Visual Studio Build Tools
+* **🌐 APIs & Databases:** Postman, DBeaver Community, Supabase CLI
+* **🐳 Containers & Testing:** Docker CLI, Playwright CLI (E2E)
 
 ---
 
@@ -18,10 +33,10 @@ Modern Rufus-style GUI wrapper to automate the installation and configuration of
 
 To ensure the installer works correctly, your environment must meet the following prerequisites:
 
-*   **Operating System:** Windows 10 (version 1709 or newer) or Windows 11.
-*   **PowerShell:** PowerShell 5.1 or newer (pre-installed on Windows 10/11). Required to safely run system environment variables configuration scripts.
-*   **Package Manager:** `winget` installed (native on modern Windows 10/11; can be updated/installed from the Microsoft Store as "App Installer" if missing).
-*   **Permissions:** Administrator Access (the executable will prompt for UAC elevation automatically upon launching).
+* **Operating System:** Windows 10 (version 1709 or newer) or Windows 11.
+* **PowerShell:** PowerShell 5.1 or newer (pre-installed on Windows 10/11).
+* **Package Manager:** `winget` installed (native on modern Windows 10/11; can be updated/installed from the Microsoft Store as "App Installer" if missing).
+* **Permissions:** Administrator Access (the executable will prompt for UAC elevation automatically upon launching).
 
 ---
 
@@ -30,7 +45,7 @@ To ensure the installer works correctly, your environment must meet the followin
 ### Using the Ready Executable
 1. Download the pre-compiled `SmartDevInstaller.exe` from the [dist/](dist/) folder or the **Releases** tab of your repository.
 2. Run the executable as **Administrator** (it will prompt for UAC elevation automatically).
-3. Select your desired profile (Full, Web, Mobile) or select checkboxes customly.
+3. Select your desired profile (Full, Web, Mobile, Backend) or select checkboxes customly.
 4. Click **START** and follow logs in real-time.
 
 ### Running from Source Code
@@ -53,7 +68,7 @@ To bundle a new standalone `.exe` containing the internal batch script:
    ```powershell
    powershell -NoProfile -ExecutionPolicy Bypass -File build_exe.ps1
    ```
-3. The compiled executable will be located in `en/dist/SmartDevInstaller.exe`.
+3. The compiled executable will be located in `dist/SmartDevInstaller.exe`.
 
 ---
 
@@ -72,14 +87,29 @@ For questions, suggestions, or support, please reach out via:
 
 ## ☕ Support the Project (Donations)
 
-If this project saved you time, please consider supporting the development with a donation via **Pix** (popular instant payment method in Brazil)!
+If this project saved you time setting up your developer environment, please consider supporting ongoing development with a donation!
 
-### Pix (Copy and Paste)
-Copy the code below and paste it in your banking app:
+<div align="center">
+
+### 🌐 PayPal (International)
+[![Donate with PayPal](https://img.shields.io/badge/Donate-PayPal-blue.svg?style=for-the-badge&logo=paypal)](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)
+
+👉 **[Click here to donate via PayPal](https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52)**
+
+<br/>
+
+<img src="assets/paypal_qr.png" alt="PayPal QR Code" width="180"/>
+
+---
+
+### 🇧🇷 Pix (Brazil)
+
 ```text
 00020126580014BR.GOV.BCB.PIX0136abdcd399-03eb-4203-8f9c-97dc96a5146d5204000053039865802BR5925Mauricio Antonio Oliveira6009SAO PAULO62140510MzCTa2ToEb63040C07
 ```
 
-#### QR Code
-Scan the image below with your banking app:
-![Pix QR Code](assets/pix_qr.png)
+<br/>
+
+<img src="assets/pix_qr.png" alt="Pix QR Code" width="180"/>
+
+</div>

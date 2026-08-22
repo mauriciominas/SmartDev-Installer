@@ -25,14 +25,23 @@ if (-not $remote) {
     }
 }
 
-# 3. Adicionar arquivos e fazer commit
-Write-Host "`n[1/2] Adicionando arquivos e realizando commit..." -ForegroundColor Yellow
+# 3. Adicionar arquivos e verificar se ha mudancas
+Write-Host "`n[1/2] Verificando e adicionando arquivos..." -ForegroundColor Yellow
 git add .
-$message = Read-Host "Digite a mensagem do commit (Pressione Enter para usar 'update: auto sync')"
-if (-not $message) {
-    $message = "update: auto sync"
+$status = git status --porcelain
+if (-not $status) {
+    Write-Host "Nenhuma alteracao detectada para commit." -ForegroundColor Green
+} else {
+    $message = Read-Host "Digite a mensagem do commit (Pressione Enter para usar 'update: auto sync')"
+    if (-not $message) {
+        $message = "update: auto sync"
+    }
+    git commit -m $message
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Falha ao realizar o commit."
+        exit 1
+    }
 }
-git commit -m $message
 
 # 4. Enviar para o GitHub
 Write-Host "`n[2/2] Enviando arquivos para o GitHub (push)..." -ForegroundColor Yellow
@@ -41,5 +50,5 @@ git push -u origin main
 if ($LASTEXITCODE -eq 0) {
     Write-Host "`nSincronizacao concluida com sucesso!" -ForegroundColor Green
 } else {
-    Write-Error "Falha ao enviar para o GitHub. Verifique suas credenciais de acesso."
+    Write-Error "Falha ao enviar para o GitHub. Verifique sua conexao de rede e credenciais de acesso."
 }

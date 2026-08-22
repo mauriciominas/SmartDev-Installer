@@ -2,24 +2,37 @@ import os
 import sys
 import subprocess
 import threading
+import queue
 import re
+import ctypes
 import tkinter as tk
 from tkinter import messagebox
 
-# Auto-install customtkinter if missing
+# Verify customtkinter
 try:
     import customtkinter as ctk
 except ImportError:
-    print("customtkinter not found. Trying to install via pip...")
-    try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install", "customtkinter"])
-        import customtkinter as ctk
-    except Exception as e:
+    if getattr(sys, 'frozen', False):
         messagebox.showerror(
-            "Dependency Error",
-            f"Could not automatically install 'customtkinter'.\nRun: pip install customtkinter\n\nError: {e}"
+            "Initialization Error",
+            "The required UI library was not found in the executable package."
         )
-        sys.exit(1)
+    else:
+        root = tk.Tk()
+        root.withdraw()
+        messagebox.showerror(
+            "Missing Dependency",
+            "The 'customtkinter' library is not installed in your Python environment.\n\n"
+            "To install it, run in your terminal:\n"
+            "pip install customtkinter"
+        )
+    sys.exit(1)
+
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0
+    except Exception:
+        return False
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
@@ -29,16 +42,15 @@ class SmartDevInstallerGUI(ctk.CTk):
         super().__init__()
 
         self.title("SmartDev Installer")
-        self.geometry("940x600")
-        self.resizable(False, False)
+        self.geometry("1000x680")
+        self.minsize(960, 620)
+        self.resizable(True, True)
 
         # Determine paths
         if getattr(sys, 'frozen', False):
-            # Running in PyInstaller bundle
             self.script_dir = sys._MEIPASS
             self.exe_dir = os.path.dirname(sys.executable)
         else:
-            # Running in standard python interpreter
             self.script_dir = os.path.dirname(os.path.abspath(__file__))
             self.exe_dir = self.script_dir
 
@@ -47,29 +59,61 @@ class SmartDevInstallerGUI(ctk.CTk):
         # UI Variables
         self.profile_var = ctk.StringVar(value="Full (All)")
 
-        # Checkbox variables dict
-        self.components = {
-            "g": ("Git", ctk.BooleanVar(value=True)),
-            "n": ("Node.js", ctk.BooleanVar(value=True)),
-            "p": ("Python 3", ctk.BooleanVar(value=True)),
-            "j": ("Java Temurin", ctk.BooleanVar(value=True)),
-            "a": ("Android Studio", ctk.BooleanVar(value=True)),
-            "m": ("Android SDK Minimum", ctk.BooleanVar(value=True)),
-            "v": ("Visual Studio Build Tools", ctk.BooleanVar(value=True)),
-            "f": ("Flutter", ctk.BooleanVar(value=True)),
-            "s": ("Supabase CLI", ctk.BooleanVar(value=True)),
+        # Categorized components dictionary: category -> list of (key, display_name, default_val)
+        self.categories = {
+            "📦 Version Control": [
+                ("g", "Git", True),
+                ("h", "GitHub Desktop", True),
+            ],
+            "⚙️ Languages & Runtimes": [
+                ("n", "Node.js", True),
+                ("p", "Python 3", True),
+                ("j", "Java Temurin (LTS 21)", True),
+                ("e", "Deno Runtime", True),
+            ],
+            "💻 Editors & IDEs": [
+                ("c", "Visual Studio Code", True),
+            ],
+            "📱 Mobile & Desktop": [
+                ("f", "Flutter SDK", True),
+                ("a", "Android Studio", True),
+                ("m", "Android SDK Minimum (cmdline-tools)", True),
+                ("v", "Visual Studio Build Tools", True),
+            ],
+            "🌐 APIs & Databases": [
+                ("t", "Postman", True),
+                ("b", "DBeaver Community", True),
+                ("s", "Supabase CLI", True),
+            ],
+            "🐳 Containers & Testing": [
+                ("d", "Docker CLI", True),
+                ("w", "Playwright CLI (E2E)", True),
+            ],
         }
 
+        # Flat components lookup: key -> (name, BooleanVar)
+        self.components = {}
+        for cat_name, items in self.categories.items():
+            for key, name, default_val in items:
+                self.components[key] = (name, ctk.BooleanVar(value=default_val))
+
         self.is_running = False
+        self.current_process = None
+        self.msg_queue = queue.Queue()
+        self.copy_timer = None
+
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.build_ui()
+        self.check_admin_privileges()
+        self.after(50, self._process_queue)
 
     def build_ui(self):
         # Main split container
         main_container = ctk.CTkFrame(self, fg_color="transparent")
         main_container.pack(fill="both", expand=True, padx=15, pady=15)
 
-        # Left Panel (Controls)
-        left_panel = ctk.CTkFrame(main_container, fg_color="transparent", width=360)
+        # Left Panel (Controls & Options)
+        left_panel = ctk.CTkFrame(main_container, fg_color="transparent", width=430)
         left_panel.pack(side="left", fill="both", expand=False, padx=(0, 10))
         left_panel.pack_propagate(False)
 
@@ -139,11 +183,11 @@ class SmartDevInstallerGUI(ctk.CTk):
             width=80,
             fg_color="#c1121f",
             hover_color="#780000",
-            command=self.destroy
+            command=self.on_closing
         )
         self.close_btn.pack(side="left", padx=(5, 0))
 
-        # 3. Main Scrollable Frame for settings (between Header and Pinned Bottom Controls)
+        # 3. Main Scrollable Frame for settings
         prop_frame = ctk.CTkScrollableFrame(left_panel, fg_color="transparent")
         prop_frame.pack(fill="both", expand=True, padx=0, pady=0)
 
@@ -153,30 +197,42 @@ class SmartDevInstallerGUI(ctk.CTk):
 
         self.profile_combo = ctk.CTkComboBox(
             prop_frame, 
-            values=["Full (All)", "Web Development", "Mobile Development (Flutter)", "Custom"],
+            values=[
+                "Full (All)",
+                "Web & Fullstack Development",
+                "Mobile Development (Flutter & Android)",
+                "Backend, Cloud & Containers",
+                "Custom"
+            ],
             variable=self.profile_var,
             command=self.on_profile_change,
             state="readonly"
         )
-        self.profile_combo.pack(fill="x", pady=(0, 12))
+        self.profile_combo.pack(fill="x", pady=(0, 10))
 
-        # Checkboxes Frame
-        comp_frame = ctk.CTkFrame(prop_frame)
-        comp_frame.pack(fill="x", pady=5)
-
-        comp_title = ctk.CTkLabel(comp_frame, text="Available Components:", font=ctk.CTkFont(weight="bold"))
-        comp_title.pack(anchor="w", padx=10, pady=5)
-
+        # Categorized Checkbox Frames
         self.chk_buttons = {}
-        for key, (name, var) in self.components.items():
-            chk = ctk.CTkCheckBox(
-                comp_frame, 
-                text=name, 
-                variable=var,
-                command=self.on_checkbox_change
+        for cat_name, items in self.categories.items():
+            cat_frame = ctk.CTkFrame(prop_frame, fg_color="#202020", corner_radius=6)
+            cat_frame.pack(fill="x", pady=4, padx=2)
+
+            cat_title = ctk.CTkLabel(
+                cat_frame, 
+                text=cat_name, 
+                font=ctk.CTkFont(size=12, weight="bold"),
+                text_color="#4cc9f0"
             )
-            chk.pack(anchor="w", padx=20, pady=4)
-            self.chk_buttons[key] = chk
+            cat_title.pack(anchor="w", padx=10, pady=(6, 4))
+
+            for key, name, _ in items:
+                chk = ctk.CTkCheckBox(
+                    cat_frame, 
+                    text=name, 
+                    variable=self.components[key][1],
+                    command=self.on_checkbox_change
+                )
+                chk.pack(anchor="w", padx=16, pady=3)
+                self.chk_buttons[key] = chk
 
         # 4. Right Panel: Logs
         log_header = ctk.CTkFrame(right_panel, fg_color="transparent")
@@ -212,32 +268,78 @@ class SmartDevInstallerGUI(ctk.CTk):
         self.log_textbox.pack(fill="both", expand=True, padx=15, pady=(0, 15))
         self.log_textbox.configure(state="disabled")
 
+    def check_admin_privileges(self):
+        if not is_admin():
+            self.status_lbl.configure(text="Warning: Running without Admin privileges.")
+            self._append_log("[WARNING] To install or update developer tools on Windows, run this program as Administrator (UAC).\n")
+
+    def _process_queue(self):
+        try:
+            while not self.msg_queue.empty():
+                msg_type, payload = self.msg_queue.get_nowait()
+                if msg_type == "log":
+                    self._append_log(payload)
+                elif msg_type == "status":
+                    self.status_lbl.configure(text=payload)
+                elif msg_type == "progress":
+                    self.progress_bar.set(payload)
+                elif msg_type == "done":
+                    self._handle_done(payload)
+                elif msg_type == "error":
+                    self._append_log(f"\n[CRITICAL ERROR] {payload}")
+                    self.status_lbl.configure(text="Critical error during execution.")
+                    self._handle_done(1)
+        except Exception as e:
+            print(f"Queue error: {e}")
+        finally:
+            self.after(50, self._process_queue)
+
+    def _append_log(self, message):
+        self.log_textbox.configure(state="normal")
+        self.log_textbox.insert("end", message + "\n")
+        self.log_textbox.see("end")
+        self.log_textbox.configure(state="disabled")
+
+    def _handle_done(self, returncode):
+        self.is_running = False
+        self.current_process = None
+        if returncode == 0:
+            self.progress_bar.set(1.0)
+            self.status_lbl.configure(text="Process completed successfully!")
+            self._append_log("\n============================================\n[COMPLETED] All steps executed.\n============================================")
+        else:
+            self.status_lbl.configure(text=f"Process finished with code {returncode}")
+            self._append_log(f"\n[ERROR] The process returned code {returncode}.")
+
+        self.start_btn.configure(state="normal")
+        self.profile_combo.configure(state="readonly")
+        self.on_profile_change(self.profile_var.get())
+
     def on_profile_change(self, value):
         if value == "Full (All)":
             for key, (_, var) in self.components.items():
                 var.set(True)
                 self.chk_buttons[key].configure(state="normal")
-        elif value == "Web Development":
-            web_keys = {"g", "n", "p", "s"}
+        elif value == "Web & Fullstack Development":
+            web_keys = {"g", "h", "n", "p", "e", "c", "t", "b", "s", "d", "w"}
             for key, (_, var) in self.components.items():
                 var.set(key in web_keys)
                 self.chk_buttons[key].configure(state="normal")
-        elif value == "Mobile Development (Flutter)":
-            mobile_keys = {"g", "j", "a", "m", "f"}
+        elif value == "Mobile Development (Flutter & Android)":
+            mobile_keys = {"g", "j", "f", "a", "m", "c", "t"}
             for key, (_, var) in self.components.items():
                 var.set(key in mobile_keys)
+                self.chk_buttons[key].configure(state="normal")
+        elif value == "Backend, Cloud & Containers":
+            backend_keys = {"g", "n", "p", "e", "c", "t", "b", "s", "d"}
+            for key, (_, var) in self.components.items():
+                var.set(key in backend_keys)
                 self.chk_buttons[key].configure(state="normal")
         elif value == "Custom":
             pass
 
     def on_checkbox_change(self):
         self.profile_var.set("Custom")
-
-    def log(self, message):
-        self.log_textbox.configure(state="normal")
-        self.log_textbox.insert("end", message + "\n")
-        self.log_textbox.see("end")
-        self.log_textbox.configure(state="disabled")
 
     def clear_log(self):
         self.log_textbox.configure(state="normal")
@@ -246,7 +348,10 @@ class SmartDevInstallerGUI(ctk.CTk):
 
     def open_logs_dir(self):
         if os.path.exists(self.exe_dir):
-            os.startfile(self.exe_dir)
+            try:
+                os.startfile(self.exe_dir)
+            except Exception as e:
+                messagebox.showerror("Error", f"Could not open directory:\n{e}")
 
     def copy_log_to_clipboard(self):
         log_text = self.log_textbox.get("1.0", "end-1c")
@@ -255,9 +360,47 @@ class SmartDevInstallerGUI(ctk.CTk):
             self.clipboard_append(log_text)
             self.update_idletasks()
             self.copy_btn.configure(text="Copied!", fg_color="#2a9d8f")
-            self.after(1500, lambda: self.copy_btn.configure(text="Copy Logs", fg_color="#333333"))
+            if self.copy_timer:
+                try:
+                    self.after_cancel(self.copy_timer)
+                except Exception:
+                    pass
+            self.copy_timer = self.after(1500, self._reset_copy_btn)
         else:
             messagebox.showinfo("Notice", "The log terminal is empty.")
+
+    def _reset_copy_btn(self):
+        try:
+            self.copy_btn.configure(text="Copy Logs", fg_color="#333333")
+        except Exception:
+            pass
+        self.copy_timer = None
+
+    def on_closing(self):
+        if self.is_running:
+            if messagebox.askyesno(
+                "Installation in Progress",
+                "An installation is currently running.\n\n"
+                "Do you really want to cancel the process and close the application?"
+            ):
+                if self.current_process:
+                    try:
+                        self.current_process.terminate()
+                    except Exception:
+                        pass
+                if self.copy_timer:
+                    try:
+                        self.after_cancel(self.copy_timer)
+                    except Exception:
+                        pass
+                self.destroy()
+        else:
+            if self.copy_timer:
+                try:
+                    self.after_cancel(self.copy_timer)
+                except Exception:
+                    pass
+            self.destroy()
 
     def start_installation(self):
         if self.is_running:
@@ -301,21 +444,23 @@ class SmartDevInstallerGUI(ctk.CTk):
         self.progress_bar.set(0)
         self.status_lbl.configure(text="Starting installation...")
 
+        # Total steps: 2 initial (sources + appinstaller) + selected components + 2 (ConfigurePaths + Summary)
+        total_steps = 2 + len(choices) + 2
+
         # Run process in background thread
-        thread = threading.Thread(target=self.run_bat, args=(choices,))
+        thread = threading.Thread(target=self.run_bat, args=(choices, total_steps))
         thread.daemon = True
         thread.start()
 
-    def run_bat(self, choices):
-        # Setup environment variables
+    def run_bat(self, choices, total_steps):
         env = os.environ.copy()
         env["ESCOLHAS"] = choices
         env["GUI_MODE"] = "1"
         env["LOG_DIR"] = self.exe_dir + os.sep
+        env["TOTAL_STEPS"] = str(total_steps)
 
         try:
-            # Execute batch file (read stdout as binary)
-            process = subprocess.Popen(
+            self.current_process = subprocess.Popen(
                 ["cmd.exe", "/c", self.bat_path],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
@@ -323,14 +468,12 @@ class SmartDevInstallerGUI(ctk.CTk):
                 creationflags=subprocess.CREATE_NO_WINDOW
             )
 
-            # Parse console output in real-time
             step_regex = re.compile(r'\[(\d+)/(\d+)\]')
             while True:
-                line_bytes = process.stdout.readline()
-                if not line_bytes and process.poll() is not None:
+                line_bytes = self.current_process.stdout.readline()
+                if not line_bytes and self.current_process.poll() is not None:
                     break
                 
-                # Safely decode the line
                 try:
                     line_str = line_bytes.decode("utf-8")
                 except UnicodeDecodeError:
@@ -341,41 +484,23 @@ class SmartDevInstallerGUI(ctk.CTk):
 
                 line_str = line_str.strip()
                 if line_str:
-                    self.log(line_str)
+                    self.msg_queue.put(("log", line_str))
                     
-                    # Update status
-                    if "Checking" in line_str or "Installing" in line_str or "Updating" in line_str:
-                        self.status_lbl.configure(text=line_str)
+                    if any(k in line_str for k in ["Checking", "Installing", "Updating", "Processing", "Configuring", "Generating", "Searching"]):
+                        self.msg_queue.put(("status", line_str))
 
-                    # Update progress bar
                     step_match = step_regex.search(line_str)
                     if step_match:
                         current = int(step_match.group(1))
                         total = int(step_match.group(2))
-                        progress = current / total
-                        self.progress_bar.set(progress)
+                        if total > 0:
+                            self.msg_queue.put(("progress", current / total))
 
-            # Completed
-            returncode = process.returncode
-            if returncode == 0:
-                self.progress_bar.set(1.0)
-                self.status_lbl.configure(text="Process completed successfully!")
-                self.log("\n============================================\n[COMPLETED] All steps executed.\n============================================")
-            else:
-                self.status_lbl.configure(text=f"Process finished with exit code {returncode}")
-                self.log(f"\n[ERROR] The process returned code {returncode}.")
+            returncode = self.current_process.returncode if self.current_process else 0
+            self.msg_queue.put(("done", returncode))
 
         except Exception as e:
-            self.log(f"\n[CRITICAL ERROR] Failed to run script: {e}")
-            self.status_lbl.configure(text="Critical error during execution.")
-
-        # Re-enable UI
-        self.is_running = False
-        self.start_btn.configure(state="normal")
-        self.profile_combo.configure(state="readonly")
-        
-        # Reset checkbox states depending on profile combobox value
-        self.on_profile_change(self.profile_var.get())
+            self.msg_queue.put(("error", str(e)))
 
 if __name__ == "__main__":
     app = SmartDevInstallerGUI()

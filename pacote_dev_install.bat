@@ -16,49 +16,78 @@ if %errorlevel% neq 0 (
 REM --- Garantir diretorio correto apos elevacao ---
 cd /d "%~dp0"
 
-set "LOGFILE=%~dp0log.txt"
-set "WINGETLOG=%~dp0winget.log"
-set "TMPOUT=%~dp0_tmp_winget.txt"
+if "%LOG_DIR%"=="" set "LOG_DIR=%~dp0"
+set "LOGFILE=%LOG_DIR%log.txt"
+set "WINGETLOG=%LOG_DIR%winget.log"
+set "TMPOUT=%LOG_DIR%_tmp_winget.txt"
 
 echo ============================================ > "%LOGFILE%"
 echo INSTALADOR DEV V10 - %date% %time% >> "%LOGFILE%"
 echo ============================================ >> "%LOGFILE%"
 
-echo [1/8] Atualizando fontes Winget...
+if "%TOTAL_STEPS%"=="" set "TOTAL_STEPS=18"
+set /a CURRENT_STEP=0
+
+call :NextStep "Atualizando fontes Winget..."
 winget source update >> "%WINGETLOG%" 2>&1
 
-echo [2/8] Atualizando App Installer...
+call :NextStep "Atualizando App Installer..."
 winget upgrade --id Microsoft.AppInstaller --accept-package-agreements --accept-source-agreements >> "%WINGETLOG%" 2>&1
 
 echo.
 echo ============================================
 echo AMBIENTE DE DESENVOLVIMENTO
 echo ============================================
-echo g - Git
-echo n - Node.js
-echo p - Python 3
-echo j - Java Temurin
-echo a - Android Studio
-echo m - Android SDK Minimo (cmdline-tools)
-echo v - Visual Studio Build Tools
-echo f - Flutter
-echo s - Supabase CLI
-echo u - Atualizar TUDO
+echo [Controle de Versao]
+echo   g - Git
+echo   h - GitHub Desktop
+echo [Linguagens e Runtimes]
+echo   n - Node.js
+echo   p - Python 3
+echo   j - Java Temurin (LTS 21)
+echo   e - Deno Runtime
+echo [Editores e IDEs]
+echo   c - Visual Studio Code
+echo [Mobile e Desktop]
+echo   f - Flutter SDK
+echo   a - Android Studio
+echo   m - Android SDK Minimo (cmdline-tools)
+echo   v - Visual Studio Build Tools
+echo [APIs e Bancos de Dados]
+echo   t - Postman
+echo   b - DBeaver Community
+echo   s - Supabase CLI
+echo [Containers e Testes]
+echo   d - Docker CLI
+echo   w - Playwright CLI (E2E)
+echo [Geral]
+echo   u - Atualizar TUDO
 echo.
 
-set /p ESCOLHAS=Digite as letras desejadas: 
+if "%ESCOLHAS%"=="" set /p ESCOLHAS=Digite as letras desejadas: 
 
-echo %ESCOLHAS% | find /I "g" >nul && call :Pkg Git.Git Git
-echo %ESCOLHAS% | find /I "n" >nul && call :Pkg OpenJS.NodeJS NodeJS
-echo %ESCOLHAS% | find /I "p" >nul && call :Python
-echo %ESCOLHAS% | find /I "j" >nul && call :Java
-echo %ESCOLHAS% | find /I "a" >nul && call :Pkg Google.AndroidStudio AndroidStudio
-echo %ESCOLHAS% | find /I "m" >nul && call :AndroidSDK
-echo %ESCOLHAS% | find /I "v" >nul && call :Pkg Microsoft.VisualStudio.2022.BuildTools VSBuildTools
-echo %ESCOLHAS% | find /I "f" >nul && call :Flutter
-echo %ESCOLHAS% | find /I "s" >nul && call :Supabase
-echo %ESCOLHAS% | find /I "u" >nul && call :UpdateDev
+echo !ESCOLHAS! | find /I "g" >nul && (call :NextStep "Processando Git..." & call :Pkg Git.Git Git)
+echo !ESCOLHAS! | find /I "h" >nul && (call :NextStep "Processando GitHub Desktop..." & call :Pkg GitHub.GitHubDesktop GitHubDesktop)
+echo !ESCOLHAS! | find /I "n" >nul && (call :NextStep "Processando Node.js..." & call :Pkg OpenJS.NodeJS NodeJS)
+echo !ESCOLHAS! | find /I "p" >nul && (call :NextStep "Processando Python..." & call :Python)
+echo !ESCOLHAS! | find /I "j" >nul && (call :NextStep "Processando Java Temurin..." & call :Java)
+echo !ESCOLHAS! | find /I "e" >nul && (call :NextStep "Processando Deno..." & call :Pkg DenoLand.Deno Deno)
+echo !ESCOLHAS! | find /I "c" >nul && (call :NextStep "Processando Visual Studio Code..." & call :Pkg Microsoft.VisualStudioCode VSCode)
+echo !ESCOLHAS! | find /I "f" >nul && (call :NextStep "Processando Flutter..." & call :Flutter)
+echo !ESCOLHAS! | find /I "a" >nul && (call :NextStep "Processando Android Studio..." & call :Pkg Google.AndroidStudio AndroidStudio)
+echo !ESCOLHAS! | find /I "m" >nul && (call :NextStep "Processando Android SDK..." & call :AndroidSDK)
+echo !ESCOLHAS! | find /I "v" >nul && (call :NextStep "Processando Visual Studio Build Tools..." & call :Pkg Microsoft.VisualStudio.2022.BuildTools VSBuildTools)
+echo !ESCOLHAS! | find /I "t" >nul && (call :NextStep "Processando Postman..." & call :Pkg Postman.Postman Postman)
+echo !ESCOLHAS! | find /I "b" >nul && (call :NextStep "Processando DBeaver Community..." & call :Pkg DBeaver.DBeaver.Community DBeaver)
+echo !ESCOLHAS! | find /I "s" >nul && (call :NextStep "Processando Supabase CLI..." & call :Supabase)
+echo !ESCOLHAS! | find /I "d" >nul && (call :NextStep "Processando Docker CLI..." & call :Pkg Docker.DockerCLI DockerCLI)
+echo !ESCOLHAS! | find /I "w" >nul && (call :NextStep "Processando Playwright CLI..." & call :Playwright)
+echo !ESCOLHAS! | find /I "u" >nul && (call :NextStep "Atualizando todos os componentes..." & call :UpdateDev)
 
+call :NextStep "Configurando variaveis de ambiente e caminhos no PATH..."
+call :ConfigurePaths
+
+call :NextStep "Gerando resumo do ambiente..."
 call :Summary
 
 REM --- Limpeza e formatacao dos logs de saida ---
@@ -77,9 +106,29 @@ pause
 exit /b
 
 REM ============================================================
+REM :NextStep <mensagem>
+REM ============================================================
+:NextStep
+set /a CURRENT_STEP+=1
+echo [%CURRENT_STEP%/%TOTAL_STEPS%] %~1
+goto :eof
+
+REM ============================================================
+REM :WhereCheck <comando>
+REM ============================================================
+:WhereCheck
+where %1 >nul 2>&1
+exit /b %errorlevel%
+
+REM ============================================================
+REM :WhereLog <comando>
+REM ============================================================
+:WhereLog
+where %1 >> "%LOGFILE%" 2>&1
+goto :eof
+
+REM ============================================================
 REM :Pkg <winget-id> <nome-amigavel>
-REM   Tenta upgrade; se não instalado, faz install.
-REM   Usa arquivo temporário para evitar falso positivo no log.
 REM ============================================================
 :Pkg
 echo Verificando %2...
@@ -89,13 +138,13 @@ REM Tenta atualizar primeiro
 winget upgrade --id %1 -e --accept-package-agreements --accept-source-agreements > "%TMPOUT%" 2>&1
 type "%TMPOUT%" >> "%WINGETLOG%"
 
-REM Verifica se o pacote não está instalado
+REM Verifica se o pacote nao esta instalado
 findstr /I /C:"No installed package found" "%TMPOUT%" >nul 2>&1
 if not errorlevel 1 goto :PkgInstall
 findstr /I /C:"Nenhum pacote instalado" "%TMPOUT%" >nul 2>&1
 if not errorlevel 1 goto :PkgInstall
 
-REM Verifica se já está na última versão (EN + PT com substrings ASCII-safe)
+REM Verifica se ja esta na versao mais recente (EN + PT)
 findstr /I /C:"No applicable update found" "%TMPOUT%" >nul 2>&1
 if not errorlevel 1 (
     echo   [OK] %2 ja esta atualizado.
@@ -133,10 +182,10 @@ if errorlevel 1 (
 goto :eof
 
 REM ============================================================
-REM :Python — Detecta alias da Microsoft Store antes de instalar
+REM :Python — Detecta alias da Microsoft Store e busca versao estavel
 REM ============================================================
 :Python
-where python >nul 2>&1
+call :WhereCheck python
 if not errorlevel 1 (
     python --version > "%TMPOUT%" 2>&1
     findstr /I /C:"was not found" "%TMPOUT%" >nul 2>&1
@@ -146,7 +195,7 @@ if not errorlevel 1 (
     )
 )
 
-echo Buscando a versao mais recente do Python no Winget...
+echo Buscando a versao mais recente estavel do Python no Winget...
 winget search --id Python.Python > "%TMPOUT%" 2>&1
 
 set PYTHON_ID=
@@ -158,39 +207,39 @@ if not defined PYTHON_ID (
     echo   [AVISO] Nenhuma versao dinamica de Python encontrada. Usando Python.Python.3.12 como padrao.
     set "PYTHON_ID=Python.Python.3.12"
 ) else (
-    echo   Versao mais recente encontrada: !PYTHON_ID!
+    echo   Versao encontrada: !PYTHON_ID!
 )
 
 call :Pkg !PYTHON_ID! Python
 goto :eof
 
 REM ============================================================
-REM :Java — Busca a versão mais recente do Temurin JDK dinamicamente
+REM :Java — Busca a versao LTS (JDK 21) do Temurin
 REM ============================================================
 :Java
-echo Buscando a versao mais recente do Java Temurin no Winget...
+echo Buscando a versao LTS do Java Temurin no Winget...
 winget search --id EclipseAdoptium.Temurin > "%TMPOUT%" 2>&1
 
 set JAVA_ID=
-for /f "delims=" %%I in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Test-Path $env:TMPOUT) { Get-Content $env:TMPOUT | Select-String -Pattern 'EclipseAdoptium\.Temurin\.\d+\.JDK' -AllMatches | ForEach-Object { $_.Matches.Value } | Sort-Object { [int]($_ -replace 'EclipseAdoptium\.Temurin\.', '' -replace '\.JDK', '') } -Descending | Select-Object -First 1 }"') do (
+for /f "delims=" %%I in ('powershell -NoProfile -ExecutionPolicy Bypass -Command "if (Test-Path $env:TMPOUT) { Get-Content $env:TMPOUT | Select-String -Pattern 'EclipseAdoptium\.Temurin\.(21|17)\.JDK' -AllMatches | ForEach-Object { $_.Matches.Value } | Sort-Object { [int]($_ -replace 'EclipseAdoptium\.Temurin\.', '' -replace '\.JDK', '') } -Descending | Select-Object -First 1 }"') do (
     set "JAVA_ID=%%I"
 )
 
 if not defined JAVA_ID (
-    echo   [AVISO] Nenhuma versao Temurin encontrada no Winget. Usando EclipseAdoptium.Temurin.21.JDK como padrao.
+    echo   [AVISO] Nenhuma versao LTS Temurin encontrada no Winget. Usando EclipseAdoptium.Temurin.21.JDK como padrao.
     set "JAVA_ID=EclipseAdoptium.Temurin.21.JDK"
 ) else (
-    echo   Versao mais recente encontrada: !JAVA_ID!
+    echo   Versao LTS encontrada: !JAVA_ID!
 )
 
 call :Pkg !JAVA_ID! "Java Temurin"
 goto :eof
 
 REM ============================================================
-REM :Flutter — Instala ou exibe versão existente
+REM :Flutter — Instala ou exibe versao existente
 REM ============================================================
 :Flutter
-where flutter >nul 2>&1
+call :WhereCheck flutter
 if errorlevel 1 (
     call :Pkg Flutter.Flutter Flutter
 ) else (
@@ -202,20 +251,41 @@ if errorlevel 1 (
 goto :eof
 
 REM ============================================================
+REM :Playwright — Instala Playwright CLI via npm
+REM ============================================================
+:Playwright
+echo Verificando Playwright CLI...
+call :WhereCheck npm
+if errorlevel 1 (
+    echo   [AVISO] Node.js/npm nao encontrado. Instalando Node.js primeiro...
+    call :Pkg OpenJS.NodeJS NodeJS
+)
+
+echo   Instalando @playwright/test globalmente via npm...
+call npm install -g @playwright/test >> "%WINGETLOG%" 2>&1
+if errorlevel 1 (
+    echo   [ERRO] Falha ao instalar @playwright/test via npm.
+    echo   Playwright: ERRO na instalacao >> "%LOGFILE%"
+) else (
+    echo   [OK] Playwright CLI instalado com sucesso via npm.
+    echo   Playwright: instalado >> "%LOGFILE%"
+)
+goto :eof
+
+REM ============================================================
 REM :Supabase — Tenta winget, fallback para npm
 REM ============================================================
 :Supabase
-where supabase >nul 2>&1
+call :WhereCheck supabase
 if errorlevel 1 (
     echo   Instalando Supabase CLI via Winget...
     winget install --id Supabase.CLI -e --accept-package-agreements --accept-source-agreements > "%TMPOUT%" 2>&1
     type "%TMPOUT%" >> "%WINGETLOG%"
     
-    REM Verifica se winget falhou
     findstr /I /C:"No package found" "%TMPOUT%" >nul 2>&1
     if not errorlevel 1 (
         echo   Winget falhou, tentando npm...
-        where npm >nul 2>&1
+        call :WhereCheck npm
         if errorlevel 1 (
             echo   [ERRO] npm nao encontrado. Instale Node.js primeiro.
             echo   Supabase: ERRO - npm nao encontrado >> "%LOGFILE%"
@@ -227,8 +297,7 @@ if errorlevel 1 (
     echo   Supabase CLI ja instalado.
 )
 
-REM Verifica versão apenas se o comando estiver disponível
-where supabase >nul 2>&1
+call :WhereCheck supabase
 if not errorlevel 1 (
     call supabase --version >> "%LOGFILE%" 2>&1
     echo   Supabase: OK >> "%LOGFILE%"
@@ -244,7 +313,7 @@ REM :AndroidSDK — Instala Android Command Line Tools
 REM ============================================================
 :AndroidSDK
 echo Verificando Android SDK (cmdline-tools)...
-where sdkmanager >nul 2>&1
+call :WhereCheck sdkmanager
 if not errorlevel 1 (
     echo   [OK] Android SDK cmdline-tools ja disponivel.
     call sdkmanager --version >> "%LOGFILE%" 2>&1
@@ -252,7 +321,7 @@ if not errorlevel 1 (
     goto :eof
 )
 call :Pkg Google.Android.CommandLineTools AndroidSDK
-echo   [INFO] Apos instalar, configure ANDROID_HOME e adicione ao PATH.
+echo   [INFO] ANDROID_HOME e caminhos no PATH serao configurados automaticamente.
 echo   Android SDK: verificar ANDROID_HOME >> "%LOGFILE%"
 goto :eof
 
@@ -263,11 +332,29 @@ REM ============================================================
 echo.
 echo === Atualizando todos os componentes ===
 call :Pkg Git.Git Git
+call :Pkg GitHub.GitHubDesktop GitHubDesktop
 call :Pkg OpenJS.NodeJS NodeJS
 call :Python
 call :Java
+call :Pkg DenoLand.Deno Deno
+call :Pkg Microsoft.VisualStudioCode VSCode
 call :Flutter
+call :Pkg Google.AndroidStudio AndroidStudio
+call :Pkg Microsoft.VisualStudio.2022.BuildTools VSBuildTools
+call :Pkg Postman.Postman Postman
+call :Pkg DBeaver.DBeaver.Community DBeaver
+call :Pkg Docker.DockerCLI DockerCLI
 call :Supabase
+call :Playwright
+goto :eof
+
+REM ============================================================
+REM :ConfigurePaths — Configura PATH e variaveis de ambiente de forma segura
+REM ============================================================
+:ConfigurePaths
+echo Configurando variaveis de ambiente e caminhos no PATH...
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$sdkPaths = @(Join-Path $env:LOCALAPPDATA 'Android\Sdk', 'C:\Android\android-sdk', Join-Path $env:ProgramFiles 'Android\Android SDK', Join-Path $env:LOCALAPPDATA 'Programs\Android\Android SDK'); $sdkDir = $sdkPaths | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($sdkDir) { [Environment]::SetEnvironmentVariable('ANDROID_HOME', $sdkDir, 'User'); $env:ANDROID_HOME = $sdkDir; $pathsToAdd = @((Join-Path $sdkDir 'cmdline-tools\latest\bin'), (Join-Path $sdkDir 'cmdline-tools\bin'), (Join-Path $sdkDir 'platform-tools'), (Join-Path $sdkDir 'emulator')); foreach ($p in $pathsToAdd) { if (Test-Path $p) { $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); $current = if ($userPath) { $userPath -split ';' | Where-Object { $_.Trim() -ne '' } } else { @() }; if ($current -notcontains $p) { $newPath = ($current + $p) -join ';'; [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User'); Write-Host ('  Adicionado ao PATH: ' + $p) } } } }; $flutterPaths = @(Join-Path $env:LOCALAPPDATA 'Programs\flutter\bin', 'C:\flutter\bin', 'C:\src\flutter\bin', Join-Path $env:USERPROFILE 'flutter\bin'); $flutterBin = $flutterPaths | Where-Object { Test-Path $_ } | Select-Object -First 1; if ($flutterBin) { $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); $current = if ($userPath) { $userPath -split ';' | Where-Object { $_.Trim() -ne '' } } else { @() }; if ($current -notcontains $flutterBin) { $newPath = ($current + $flutterBin) -join ';'; [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User'); Write-Host ('  Adicionado ao PATH: ' + $flutterBin) } }; $javaPaths = @(Join-Path $env:ProgramFiles 'Eclipse Adoptium', Join-Path $env:ProgramFiles 'Eclipse Foundation'); $javaDir = $null; foreach ($jp in $javaPaths) { if (Test-Path $jp) { $jdkDir = Get-ChildItem $jp -Filter 'jdk-*' | Select-Object -First 1; if ($jdkDir) { $javaDir = $jdkDir.FullName; break } } }; if ($javaDir) { [Environment]::SetEnvironmentVariable('JAVA_HOME', $javaDir, 'User'); $env:JAVA_HOME = $javaDir; $javaBin = Join-Path $javaDir 'bin'; $userPath = [Environment]::GetEnvironmentVariable('PATH', 'User'); $current = if ($userPath) { $userPath -split ';' | Where-Object { $_.Trim() -ne '' } } else { @() }; if ($current -notcontains $javaBin) { $newPath = ($current + $javaBin) -join ';'; [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User'); Write-Host ('  Adicionado ao PATH: ' + $javaBin) } }"
 goto :eof
 
 REM ============================================================
@@ -280,36 +367,29 @@ echo RESUMO DO AMBIENTE
 echo ============================================
 echo ===== RESUMO ===== >> "%LOGFILE%"
 
-for %%C in (git node python java flutter supabase sdkmanager) do (
-    where %%C >nul 2>&1
+for %%C in (git node python java deno code flutter supabase sdkmanager docker postman dbeaver) do (
+    call :WhereCheck %%C
     if not errorlevel 1 (
         echo   %%C: encontrado
-        where %%C >> "%LOGFILE%" 2>&1
+        call :WhereLog %%C
     ) else (
         echo   %%C: nao encontrado
     )
 )
 
 echo --- Versoes --- >> "%LOGFILE%"
+
 git --version >> "%LOGFILE%" 2>&1
 node --version >> "%LOGFILE%" 2>&1
 python --version >> "%LOGFILE%" 2>&1
 java -version >> "%LOGFILE%" 2>&1
+call deno --version >> "%LOGFILE%" 2>&1
+call code --version >> "%LOGFILE%" 2>&1
 call flutter --version >> "%LOGFILE%" 2>&1
 call supabase --version >> "%LOGFILE%" 2>&1
+call docker --version >> "%LOGFILE%" 2>&1
+call npx playwright --version >> "%LOGFILE%" 2>&1
 
-REM Limpar arquivo temporário
+REM Limpar arquivo temporario
 if exist "%TMPOUT%" del "%TMPOUT%"
 goto :eof
-
-REM ===== NOTAS V10 =====
-REM - Corrigido :Pkg para usar arquivo temporario (evita falso positivo no log acumulativo)
-REM - Suporte a mensagens em ingles E portugues do winget
-REM - Elevação de privilegio preserva diretorio de trabalho
-REM - Adicionado handler para opcao 'm' (Android SDK cmdline-tools)
-REM - Python usa versao fixa 3.12 (evita ID ambiguo Python.Python.3)
-REM - Java range ajustado para 17-23 (versoes realistas)
-REM - Feedback visual: [OK], [ERRO], [AVISO] por pacote
-REM - Supabase verifica npm antes de tentar fallback
-REM - Summary exibe no console e no log
-REM - Arquivo temporario limpo ao final

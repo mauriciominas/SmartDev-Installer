@@ -6,7 +6,6 @@ Write-Host "==============================================" -ForegroundColor Blu
 
 # 1. Verificar e instalar dependencias
 Write-Host "`n[1/3] Verificando dependencias Python..." -ForegroundColor Yellow
-python -m pip install --upgrade pip
 
 Write-Host "Verificando customtkinter..."
 python -c "import customtkinter" 2>$null
@@ -18,7 +17,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 Write-Host "Verificando pyinstaller..."
-Get-Command pyinstaller -ErrorAction SilentlyContinue
+python -c "import PyInstaller" 2>$null
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Instalando pyinstaller..." -ForegroundColor Green
     python -m pip install pyinstaller
@@ -29,7 +28,6 @@ if ($LASTEXITCODE -ne 0) {
 # 2. Compilar com PyInstaller
 Write-Host "`n[2/3] Compilando executavel com PyInstaller..." -ForegroundColor Yellow
 
-# Obter caminho absoluto do script bat
 $batFile = "smartdev_installer.bat"
 if (-not (Test-Path $batFile)) {
     Write-Error "Arquivo backend $batFile nao encontrado! Abortando."
@@ -37,7 +35,6 @@ if (-not (Test-Path $batFile)) {
 }
 
 # Comando de compilação
-# --add-data "smartdev_installer.bat;." empacota o bat junto ao executavel
 python -m PyInstaller --noconsole --onefile --uac-admin --name "SmartDevInstaller" --add-data "smartdev_installer.bat;." gui_app.py
 
 if ($LASTEXITCODE -eq 0) {
