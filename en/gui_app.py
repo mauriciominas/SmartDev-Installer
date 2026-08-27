@@ -444,8 +444,8 @@ class SmartDevInstallerGUI(ctk.CTk):
         self.progress_bar.set(0)
         self.status_lbl.configure(text="Starting installation...")
 
-        # Total steps: 2 initial (sources + appinstaller) + selected components + 2 (ConfigurePaths + Summary)
-        total_steps = 2 + len(choices) + 2
+        # Total steps: 3 initial (sources + appinstaller + powershell) + selected components + 2 (ConfigurePaths + Summary)
+        total_steps = 3 + len(choices) + 2
 
         # Run process in background thread
         thread = threading.Thread(target=self.run_bat, args=(choices, total_steps))

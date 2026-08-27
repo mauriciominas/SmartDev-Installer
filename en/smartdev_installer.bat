@@ -25,7 +25,7 @@ echo ============================================ > "%LOGFILE%"
 echo DEV INSTALLER - %date% %time% >> "%LOGFILE%"
 echo ============================================ >> "%LOGFILE%"
 
-if "%TOTAL_STEPS%"=="" set "TOTAL_STEPS=18"
+if "%TOTAL_STEPS%"=="" set "TOTAL_STEPS=19"
 set /a CURRENT_STEP=0
 
 call :NextStep "Updating Winget sources..."
@@ -33,6 +33,9 @@ winget source update >> "%WINGETLOG%" 2>&1
 
 call :NextStep "Updating App Installer..."
 winget upgrade --id Microsoft.AppInstaller --accept-package-agreements --accept-source-agreements >> "%WINGETLOG%" 2>&1
+
+call :NextStep "Checking PowerShell..."
+call :PowerShellCore
 
 echo.
 echo ============================================
@@ -179,6 +182,28 @@ if errorlevel 1 (
     echo   [OK] %2 installed successfully.
     echo   %2: installed >> "%LOGFILE%"
 )
+goto :eof
+
+REM ============================================================
+REM :PowerShellCore — Ensures the latest PowerShell (PS 7+)
+REM ============================================================
+:PowerShellCore
+echo --- PowerShell [%date% %time%] --- >> "%WINGETLOG%"
+for /f "delims=" %%V in ('powershell -NoProfile -Command "$PSVersionTable.PSVersion.ToString()" 2^>nul') do echo   Windows PowerShell built-in: %%V >> "%LOGFILE%"
+
+call :WhereCheck pwsh
+if errorlevel 1 echo   PowerShell 7+ not found. It will be installed.
+if not errorlevel 1 echo   PowerShell 7+ already present. Checking for updates...
+
+call :Pkg Microsoft.PowerShell PowerShell
+
+call :WhereCheck pwsh
+if errorlevel 1 (
+    echo   [WARNING] Close and reopen the terminal to use the 'pwsh' command.
+    echo   PowerShell 7+: installed, requires a new terminal >> "%LOGFILE%"
+    goto :eof
+)
+for /f "delims=" %%V in ('pwsh -NoProfile -Command "$PSVersionTable.PSVersion.ToString()" 2^>nul') do echo   PowerShell 7+: %%V >> "%LOGFILE%"
 goto :eof
 
 REM ============================================================

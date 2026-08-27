@@ -102,8 +102,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File build_exe.ps1
 ## 📋 System Requirements
 
 * **Operating System:** Windows 10 (version 1709 or newer) or Windows 11.
-* **PowerShell:** PowerShell 5.1+ (pre-installed natively on Windows 10/11).
-* **Package Manager:** `winget` (pre-installed on modern Windows; update via Microsoft Store "App Installer" if needed).
+* **PowerShell:** PowerShell 5.1+ (pre-installed natively on Windows 10/11). The installer also checks and updates **PowerShell 7+** automatically before anything else (installing it if missing).
+* **Package Manager:** `winget` (pre-installed on modern Windows). The installer updates winget (App Installer) itself at the very start of every run.
 * **Privileges:** Administrator Access (UAC).
 
 ---
