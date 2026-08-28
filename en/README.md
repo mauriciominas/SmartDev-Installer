@@ -65,7 +65,7 @@ Powered by **Windows Package Manager (`winget`)**, **Python (CustomTkinter GUI)*
 ## 🚀 How to Use
 
 ### 1. Ready Standalone Executable (.exe)
-1. Download the ready executable [`SmartDev-Installer-EN.exe`](https://github.com/webforservices-dev/SmartDev-Installer/releases/latest/download/SmartDev-Installer-EN.exe) from the [latest release](https://github.com/webforservices-dev/SmartDev-Installer/releases/latest).
+1. Download the ready executable [`SmartDev-Installer-EN.exe`](https://github.com/mauriciominas/SmartDev-Installer/releases/latest/download/SmartDev-Installer-EN.exe) from the [latest release](https://github.com/mauriciominas/SmartDev-Installer/releases/latest).
 2. **Double-click** to run (Windows will prompt for UAC elevation automatically).
 3. Select your desired profile or select checkboxes customly.
 4. Click **START** and follow logs in real-time.

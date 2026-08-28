@@ -4,7 +4,7 @@
   <p><strong>A Modern Rufus-Style Automated Developer Environment Installer & Configurator for Windows</strong></p>
 
   <p>
-    <a href="https://github.com/webforservices-dev/SmartDev-Installer/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT"/></a>
+    <a href="https://github.com/mauriciominas/SmartDev-Installer/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License: MIT"/></a>
     <img src="https://img.shields.io/badge/Platform-Windows%2010%20%7C%2011-0078D6.svg?style=for-the-badge&logo=windows" alt="Platform: Windows"/>
     <img src="https://img.shields.io/badge/Backend-Winget%20%2B%20Python%20%2B%20Batch-3776AB.svg?style=for-the-badge&logo=python" alt="Stack"/>
     <a href="https://www.paypal.com/donate/?hosted_button_id=T3472SUH7RP52"><img src="https://img.shields.io/badge/Donate-PayPal-00457C.svg?style=for-the-badge&logo=paypal" alt="Donate PayPal"/></a>
@@ -69,16 +69,16 @@ All packages are organized into intuitive categories and installed using officia
 
 ### 1. Ready Standalone Executable (.exe)
 No dependencies or Python installation required on the target machine:
-* 🌎 **[Download English Version (SmartDev-Installer-EN.exe)](https://github.com/webforservices-dev/SmartDev-Installer/releases/latest/download/SmartDev-Installer-EN.exe)**
-* 🇧🇷 **[Download Brazilian Portuguese Version (SmartDev-Installer-pt-BR.exe)](https://github.com/webforservices-dev/SmartDev-Installer/releases/latest/download/SmartDev-Installer-pt-BR.exe)**
-* 📦 All builds and changelog: **[Releases page](https://github.com/webforservices-dev/SmartDev-Installer/releases/latest)**
+* 🌎 **[Download English Version (SmartDev-Installer-EN.exe)](https://github.com/mauriciominas/SmartDev-Installer/releases/latest/download/SmartDev-Installer-EN.exe)**
+* 🇧🇷 **[Download Brazilian Portuguese Version (SmartDev-Installer-pt-BR.exe)](https://github.com/mauriciominas/SmartDev-Installer/releases/latest/download/SmartDev-Installer-pt-BR.exe)**
+* 📦 All builds and changelog: **[Releases page](https://github.com/mauriciominas/SmartDev-Installer/releases/latest)**
 
 > **Note:** Run the executable as **Administrator (UAC)**. The application will request elevation automatically to configure system PATH and install packages.
 
 ### 2. Running from Source Code
 ```bash
 # Clone the repository
-git clone https://github.com/webforservices-dev/SmartDev-Installer.git
+git clone https://github.com/mauriciominas/SmartDev-Installer.git
 cd SmartDev-Installer
 
 # Install GUI dependency
@@ -151,11 +151,11 @@ If **SmartDev Installer** saved you hours of manual setup, please consider suppo
 
 * **License:** [MIT License](LICENSE)
 * **Author / Contact:** Mauricio Antonio Oliveira — 📧 **webforservices@gmail.com**
-* **Repository:** [https://github.com/webforservices-dev/SmartDev-Installer](https://github.com/webforservices-dev/SmartDev-Installer)
+* **Repository:** [https://github.com/mauriciominas/SmartDev-Installer](https://github.com/mauriciominas/SmartDev-Installer)
 
 ---
 
 ## 💬 Feedback & Community
 
 Tested the installer? Your input helps improve the project!
-Share your thoughts, suggestions, or ideas in our [Discussions Hub](https://github.com/webforservices-dev/SmartDev-Installer/discussions/1).
+Share your thoughts, suggestions, or ideas in our [Discussions Hub](https://github.com/mauriciominas/SmartDev-Installer/discussions/1).
