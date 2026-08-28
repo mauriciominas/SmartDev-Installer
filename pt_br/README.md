@@ -65,7 +65,7 @@ Utilizando o **Windows Package Manager (`winget`)**, interface visual moderna (*
 ## 🚀 Como Usar
 
 ### 1. Usando o Executável Pronto (.exe)
-1. Baixe o executável pronto [`dist/SmartDevInstaller.exe`](dist/SmartDevInstaller.exe).
+1. Baixe o executável pronto [`SmartDev-Installer-pt-BR.exe`](https://github.com/mauriciominas/SmartDev-Installer/releases/latest/download/SmartDev-Installer-pt-BR.exe) no [release mais recente](https://github.com/mauriciominas/SmartDev-Installer/releases/latest).
 2. Dê um **duplo clique** para abrir (o Windows solicitará elevação de Administrador UAC automaticamente).
 3. Selecione o preset desejado ou marque os componentes manualmente.
 4. Clique em **INICIAR** e acompanhe os logs em tempo real.

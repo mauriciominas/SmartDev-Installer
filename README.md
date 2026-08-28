@@ -69,8 +69,9 @@ All packages are organized into intuitive categories and installed using officia
 
 ### 1. Ready Standalone Executable (.exe)
 No dependencies or Python installation required on the target machine:
-* 🌎 **[Download English Version (dist/SmartDevInstaller.exe)](en/dist/SmartDevInstaller.exe)**
-* 🇧🇷 **[Download Brazilian Portuguese Version (pt_br/dist/SmartDevInstaller.exe)](pt_br/dist/SmartDevInstaller.exe)**
+* 🌎 **[Download English Version (SmartDev-Installer-EN.exe)](https://github.com/mauriciominas/SmartDev-Installer/releases/latest/download/SmartDev-Installer-EN.exe)**
+* 🇧🇷 **[Download Brazilian Portuguese Version (SmartDev-Installer-pt-BR.exe)](https://github.com/mauriciominas/SmartDev-Installer/releases/latest/download/SmartDev-Installer-pt-BR.exe)**
+* 📦 All builds and changelog: **[Releases page](https://github.com/mauriciominas/SmartDev-Installer/releases/latest)**
 
 > **Note:** Run the executable as **Administrator (UAC)**. The application will request elevation automatically to configure system PATH and install packages.
 
