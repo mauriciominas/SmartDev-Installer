@@ -152,3 +152,10 @@ If **SmartDev Installer** saved you hours of manual setup, please consider suppo
 * **License:** [MIT License](LICENSE)
 * **Author / Contact:** Mauricio Antonio Oliveira — 📧 **webforservices@gmail.com**
 * **Repository:** [https://github.com/mauriciominas/SmartDev-Installer](https://github.com/mauriciominas/SmartDev-Installer)
+
+---
+
+## 💬 Feedback & Community
+
+Tested the installer? Your input helps improve the project!
+Share your thoughts, suggestions, or ideas in our [Discussions Hub](https://github.com/mauriciominas/SmartDev-Installer/discussions/1).
