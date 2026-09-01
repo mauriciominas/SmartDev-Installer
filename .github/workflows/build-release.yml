@@ -44,6 +44,7 @@ jobs:
           pyinstaller \
             --onefile \
             --windowed \
+            --uac-admin \
             --clean \
             --noconfirm \
             --name "${{ matrix.name }}" \

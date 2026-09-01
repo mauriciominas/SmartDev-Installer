@@ -313,7 +313,11 @@ class SmartDevInstallerGUI(ctk.CTk):
 
         self.start_btn.configure(state="normal")
         self.profile_combo.configure(state="readonly")
-        self.on_profile_change(self.profile_var.get())
+        self._enable_all_checkboxes()
+
+    def _enable_all_checkboxes(self):
+        for chk in self.chk_buttons.values():
+            chk.configure(state="normal")
 
     def on_profile_change(self, value):
         if value == "Completo (Tudo)":
@@ -336,7 +340,9 @@ class SmartDevInstallerGUI(ctk.CTk):
                 var.set(key in backend_keys)
                 self.chk_buttons[key].configure(state="normal")
         elif value == "Personalizado":
-            pass
+            for key, (_, var) in self.components.items():
+                var.set(False)
+                self.chk_buttons[key].configure(state="normal")
 
     def on_checkbox_change(self):
         self.profile_var.set("Personalizado")

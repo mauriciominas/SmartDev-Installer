@@ -4,14 +4,28 @@ chcp 65001 >nul
 title Dev Environment Installer V10
 
 REM --- Privilege Elevation ---
+REM In GUI_MODE the executable already runs elevated (built with --uac-admin)
+REM and the variables come from the interface. Relaunching here would create a
+REM new process without them, in a separate console the GUI cannot read.
+REM Do not use a nested 'if' with 'exit /b' here: cmd.exe loses the exit code
+REM when exit /b comes from a nested block, and the GUI would read 0 (success).
 fltmc >nul 2>&1
 if %errorlevel% neq 0 (
+    if "%GUI_MODE%"=="1" goto :SemAdminGui
     echo Requesting administrator privileges...
     set "BATCH_PATH=%~f0"
     set "BATCH_DIR=%~dp0"
     powershell -NoProfile -ExecutionPolicy Bypass -Command "(New-Object -ComObject Shell.Application).ShellExecute($env:BATCH_PATH, '', $env:BATCH_DIR, 'runas', 1)"
     exit /b
 )
+goto :ComAdmin
+
+:SemAdminGui
+echo [ERROR] Administrator privileges were not granted.
+echo [ERROR] Close the program and open it again accepting the Windows prompt.
+exit /b 1
+
+:ComAdmin
 
 REM --- Ensure correct working directory after elevation ---
 cd /d "%~dp0"
@@ -37,6 +51,7 @@ winget upgrade --id Microsoft.AppInstaller --accept-package-agreements --accept-
 call :NextStep "Checking PowerShell..."
 call :PowerShellCore
 
+if "%GUI_MODE%"=="1" goto :GuiSemMenu
 echo.
 echo ============================================
 echo DEVELOPER ENVIRONMENT INSTALLER
@@ -68,6 +83,13 @@ echo   u - Update ALL
 echo.
 
 if "%ESCOLHAS%"=="" set /p ESCOLHAS=Type the desired letters: 
+goto :MenuFim
+:GuiSemMenu
+if "%ESCOLHAS%"=="" (
+    echo [ERROR] No components received from the interface.
+    exit /b 1
+)
+:MenuFim
 
 echo !ESCOLHAS! | find /I "g" >nul && (call :NextStep "Processing Git..." & call :Pkg Git.Git Git)
 echo !ESCOLHAS! | find /I "h" >nul && (call :NextStep "Processing GitHub Desktop..." & call :Pkg GitHub.GitHubDesktop GitHubDesktop)

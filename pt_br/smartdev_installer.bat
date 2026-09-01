@@ -4,14 +4,28 @@ chcp 65001 >nul
 title Instalador Dev Completo V10
 
 REM --- Elevacao de privilegio ---
+REM Em GUI_MODE o executavel ja roda elevado (compilado com --uac-admin) e as
+REM variaveis vem da interface. Relancar aqui criaria um processo novo sem
+REM elas, num console separado que a GUI nao consegue ler.
+REM Nao usar 'if' aninhado com 'exit /b' aqui: o cmd.exe perde o codigo de
+REM saida quando o exit /b parte de um bloco aninhado, e a GUI leria 0 (sucesso).
 fltmc >nul 2>&1
 if %errorlevel% neq 0 (
+    if "%GUI_MODE%"=="1" goto :SemAdminGui
     echo Solicitando privilegios de administrador...
     set "BATCH_PATH=%~f0"
     set "BATCH_DIR=%~dp0"
     powershell -NoProfile -ExecutionPolicy Bypass -Command "(New-Object -ComObject Shell.Application).ShellExecute($env:BATCH_PATH, '', $env:BATCH_DIR, 'runas', 1)"
     exit /b
 )
+goto :ComAdmin
+
+:SemAdminGui
+echo [ERRO] Privilegios de administrador nao concedidos.
+echo [ERRO] Feche o programa e abra novamente aceitando o aviso do Windows.
+exit /b 1
+
+:ComAdmin
 
 REM --- Garantir diretorio correto apos elevacao ---
 cd /d "%~dp0"
@@ -37,6 +51,7 @@ winget upgrade --id Microsoft.AppInstaller --accept-package-agreements --accept-
 call :NextStep "Verificando PowerShell..."
 call :PowerShellCore
 
+if "%GUI_MODE%"=="1" goto :GuiSemMenu
 echo.
 echo ============================================
 echo AMBIENTE DE DESENVOLVIMENTO
@@ -68,6 +83,13 @@ echo   u - Atualizar TUDO
 echo.
 
 if "%ESCOLHAS%"=="" set /p ESCOLHAS=Digite as letras desejadas: 
+goto :MenuFim
+:GuiSemMenu
+if "%ESCOLHAS%"=="" (
+    echo [ERRO] Nenhum componente recebido da interface.
+    exit /b 1
+)
+:MenuFim
 
 echo !ESCOLHAS! | find /I "g" >nul && (call :NextStep "Processando Git..." & call :Pkg Git.Git Git)
 echo !ESCOLHAS! | find /I "h" >nul && (call :NextStep "Processando GitHub Desktop..." & call :Pkg GitHub.GitHubDesktop GitHubDesktop)
