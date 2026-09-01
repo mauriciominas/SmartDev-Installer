@@ -1,7 +1,7 @@
 name: Build and attach installers
 
-# Compila os dois executaveis com PyInstaller e anexa a release da tag.
-# - push de uma tag v*  -> compila e anexa os .exe a release correspondente
+# Compila os dois executaveis com PyInstaller e publica na release da tag.
+# - push de uma tag v*  -> compila, cria (ou atualiza) a release e anexa os .exe
 # - execucao manual     -> compila e publica apenas como artifact, sem tocar em release
 on:
   push:
@@ -65,10 +65,28 @@ jobs:
           path: ${{ matrix.dir }}/dist/${{ matrix.name }}.exe
           if-no-files-found: error
 
-      - name: Anexa a release da tag
-        if: startsWith(github.ref, 'refs/tags/')
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Cria ou atualiza a release da tag
         shell: bash
-        working-directory: ${{ matrix.dir }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload "$GITHUB_REF_NAME" "dist/${{ matrix.name }}.exe" --clobber
+          GH_REPO: ${{ github.repository }}
+        run: |
+          ls -la dist
+          test -f "dist/SmartDev-Installer-EN.exe"
+          test -f "dist/SmartDev-Installer-pt-BR.exe"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release upload "$GITHUB_REF_NAME" dist/*.exe --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" dist/*.exe --title "SmartDev Installer $GITHUB_REF_NAME" --generate-notes
+          fi
