@@ -37,6 +37,9 @@ def is_admin():
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
+COR_SUCESSO = "#3fb950"
+COR_FALHA = "#f85149"
+
 class SmartDevInstallerGUI(ctk.CTk):
     def __init__(self):
         super().__init__()
@@ -147,6 +150,7 @@ class SmartDevInstallerGUI(ctk.CTk):
 
         # Status and Progress
         self.status_lbl = ctk.CTkLabel(bottom_frame, text="Ready to start.", font=ctk.CTkFont(size=12))
+        self._cor_status_padrao = self.status_lbl.cget("text_color")
         self.status_lbl.pack(anchor="w", padx=5, pady=(5, 2))
 
         self.progress_bar = ctk.CTkProgressBar(bottom_frame)
@@ -267,6 +271,8 @@ class SmartDevInstallerGUI(ctk.CTk):
         )
         self.log_textbox.pack(fill="both", expand=True, padx=15, pady=(0, 15))
         self.log_textbox.configure(state="disabled")
+        self.log_textbox.tag_config("sucesso", foreground=COR_SUCESSO)
+        self.log_textbox.tag_config("falha", foreground=COR_FALHA)
 
     def check_admin_privileges(self):
         if not is_admin():
@@ -280,23 +286,23 @@ class SmartDevInstallerGUI(ctk.CTk):
                 if msg_type == "log":
                     self._append_log(payload)
                 elif msg_type == "status":
-                    self.status_lbl.configure(text=payload)
+                    self.status_lbl.configure(text=payload, text_color=self._cor_status_padrao)
                 elif msg_type == "progress":
                     self.progress_bar.set(payload)
                 elif msg_type == "done":
                     self._handle_done(payload)
                 elif msg_type == "error":
                     self._append_log(f"\n[CRITICAL ERROR] {payload}")
-                    self.status_lbl.configure(text="Critical error during execution.")
+                    self.status_lbl.configure(text="Critical error during execution.", text_color=COR_FALHA)
                     self._handle_done(1)
         except Exception as e:
             print(f"Queue error: {e}")
         finally:
             self.after(50, self._process_queue)
 
-    def _append_log(self, message):
+    def _append_log(self, message, tag=None):
         self.log_textbox.configure(state="normal")
-        self.log_textbox.insert("end", message + "\n")
+        self.log_textbox.insert("end", message + "\n", tag)
         self.log_textbox.see("end")
         self.log_textbox.configure(state="disabled")
 
@@ -305,11 +311,11 @@ class SmartDevInstallerGUI(ctk.CTk):
         self.current_process = None
         if returncode == 0:
             self.progress_bar.set(1.0)
-            self.status_lbl.configure(text="Process completed successfully!")
-            self._append_log("\n============================================\n[COMPLETED] All steps executed.\n============================================")
+            self.status_lbl.configure(text="Process completed successfully!", text_color=COR_SUCESSO)
+            self._append_log("\n============================================\n[COMPLETED] All steps executed.\n============================================", tag="sucesso")
         else:
-            self.status_lbl.configure(text=f"Process finished with code {returncode}")
-            self._append_log(f"\n[ERROR] The process returned code {returncode}.")
+            self.status_lbl.configure(text=f"Process finished with code {returncode}", text_color=COR_FALHA)
+            self._append_log(f"\n[ERROR] The process returned code {returncode}.", tag="falha")
 
         self.start_btn.configure(state="normal")
         self.profile_combo.configure(state="readonly")
@@ -448,7 +454,7 @@ class SmartDevInstallerGUI(ctk.CTk):
 
         self.clear_log()
         self.progress_bar.set(0)
-        self.status_lbl.configure(text="Starting installation...")
+        self.status_lbl.configure(text="Starting installation...", text_color=self._cor_status_padrao)
 
         # Total steps: 3 initial (sources + appinstaller + powershell) + selected components + 2 (ConfigurePaths + Summary)
         total_steps = 3 + len(choices) + 2
