@@ -1,0 +1,10 @@
+# Scripts do Windows precisam de CRLF.
+# Com LF, o cmd.exe desalinha a leitura em arquivos grandes e passa a executar
+# fragmentos de linha como comando ('REM ...' vira 'EM ...'), alem de corromper
+# o ERRORLEVEL usado na deteccao de privilegio de administrador.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Scripts POSIX precisam de LF
+*.sh text eol=lf
